@@ -1,0 +1,159 @@
+.catalog-sidebar {
+  background-color: var(--color-white);
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  height: fit-content;
+  position: sticky;
+  top: 100px; /* Sticky sidebar */
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.sidebar-section {
+  margin-bottom: 25px;
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--color-gray-100);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 15px;
+}
+
+/* Custom Radio Buttons */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-gray-800);
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.radio-label:hover {
+  background-color: var(--color-gray-100);
+}
+
+.radio-label.active {
+  background-color: rgba(229, 57, 53, 0.08); /* light accent red */
+  border: 1px solid rgba(229, 57, 53, 0.3);
+  color: var(--color-accent);
+}
+
+.radio-label input[type="radio"] {
+  /* hide default, use custom */
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  outline: none;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radio-label input[type="radio"]:checked {
+  border-color: var(--color-accent);
+}
+
+.radio-label input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+}
+
+.btn-clear-filters {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-800);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 30px;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-clear-filters:hover {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.size-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-white);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  border-color: var(--color-gray-800);
+}
+
+.size-btn.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.equipo-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
+  font-size: 14px;
+  font-family: var(--font-family);
+  color: var(--color-gray-800);
+  background-color: var(--color-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.equipo-select:focus {
+  border-color: var(--color-primary);
+}
