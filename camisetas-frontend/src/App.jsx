@@ -12,6 +12,7 @@ import Perfil from './pages/Perfil';
 import Carrito from './pages/Carrito';
 import DetalleProducto from './pages/DetalleProducto';
 import ScrollToTop from './components/ScrollToTop';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/catalogo/productos/:id" element={<DetalleProducto />} />
                 <Route path="/carrito" element={<Carrito />} />
                 <Route path="/perfil" element={<Perfil />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
             </main>
             <Footer />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { fetchApi, getImageUrl } from '../services/api';
@@ -116,19 +116,23 @@ const Perfil = () => {
                 <FiUser size={18} /> Mis Datos
               </button>
               
-              <button 
-                className={`profile-nav-btn ${activeTab === 'compras' ? 'active' : ''}`}
-                onClick={() => setActiveTab('compras')}
-              >
-                <FiShoppingBag size={18} /> Mis Compras
-              </button>
-              
-              <button 
-                className={`profile-nav-btn ${activeTab === 'favoritos' ? 'active' : ''}`}
-                onClick={() => setActiveTab('favoritos')}
-              >
-                <FiHeart size={18} /> Favoritos
-              </button>
+              {user.rol !== 'VENDEDOR' && (
+                <>
+                  <button 
+                    className={`profile-nav-btn ${activeTab === 'compras' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('compras')}
+                  >
+                    <FiShoppingBag size={18} /> Mis Compras
+                  </button>
+                  
+                  <button 
+                    className={`profile-nav-btn ${activeTab === 'favoritos' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('favoritos')}
+                  >
+                    <FiHeart size={18} /> Favoritos
+                  </button>
+                </>
+              )}
             </nav>
             
             <button onClick={handleLogout} className="logout-btn">
@@ -174,6 +178,28 @@ const Perfil = () => {
                       {user.fechaRegistro ? formatDate(user.fechaRegistro) : 'Recientemente'}
                     </div>
                   </div>
+                  {user.rol === 'VENDEDOR' && (
+                    <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px', gridColumn: '1 / -1' }}>
+                      <Link 
+                        to="/admin" 
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          background: 'linear-gradient(135deg, var(--color-accent) 0%, #1d4ed8 100%)',
+                          color: 'white',
+                          padding: '12px 24px',
+                          borderRadius: '12px',
+                          fontWeight: '700',
+                          textDecoration: 'none',
+                          boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
+                          transition: 'transform 0.2s, box-shadow 0.2s'
+                        }}
+                      >
+                        <FiShield /> Ir al Panel de Administración
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

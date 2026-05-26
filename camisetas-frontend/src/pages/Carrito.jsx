@@ -8,18 +8,23 @@ import './Carrito.css';
 
 const Carrito = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { items, total, isLoading, fetchCart, updateQuantity, removeFromCart, clearCart } = useCart();
 
   const [direccion, setDireccion] = useState('');
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
 
   // Cargar el carrito al montar el componente
   useEffect(() => {
-    fetchCart();
-  }, [token]);
+    if (user && user.rol === 'VENDEDOR') {
+      navigate('/admin');
+    } else {
+      fetchCart();
+    }
+  }, [token, user, navigate]);
 
   const handleUpdateQuantity = (item, newQty) => {
     if (newQty < 1) {
@@ -34,9 +39,7 @@ const Carrito = () => {
   };
 
   const handleClear = () => {
-    if (window.confirm("¿Seguro que deseas vaciar tu carrito?")) {
-      clearCart();
-    }
+    setShowConfirmClear(true);
   };
 
   const handleCheckout = async (e) => {
@@ -264,6 +267,33 @@ const Carrito = () => {
           </div>
         )}
       </div>
+      {showConfirmClear && (
+        <div className="custom-confirm-modal-overlay">
+          <div className="custom-confirm-modal">
+            <h3>¿Vaciar Carrito?</h3>
+            <p>¿Estás seguro de que deseas eliminar todas las camisetas de tu carrito? Esta acción no se puede deshacer.</p>
+            <div className="confirm-modal-actions">
+              <button 
+                type="button" 
+                className="btn-confirm-cancel" 
+                onClick={() => setShowConfirmClear(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button" 
+                className="btn-confirm-accept" 
+                onClick={() => {
+                  clearCart();
+                  setShowConfirmClear(false);
+                }}
+              >
+                Sí, vaciar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

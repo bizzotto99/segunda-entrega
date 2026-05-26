@@ -5,11 +5,12 @@ import { useCart } from '../context/CartContext';
 import { fetchApi, getImageUrl } from '../services/api';
 import { FiChevronLeft, FiShoppingBag, FiCheck, FiHeart } from 'react-icons/fi';
 import './DetalleProducto.css';
+import Toast from '../components/Toast';
 
 const DetalleProducto = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { addToCart } = useCart();
 
   const [producto, setProducto] = useState(null);
@@ -21,6 +22,7 @@ const DetalleProducto = () => {
   const [added, setAdded] = useState(false);
   const [esFavorito, setEsFavorito] = useState(false);
   const [activeImage, setActiveImage] = useState(null);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     const loadProducto = async () => {
@@ -80,7 +82,7 @@ const DetalleProducto = () => {
     
     // Si el producto tiene talles y no se seleccionó ninguno
     if (producto.talles && producto.talles.length > 0 && !selectedTalle) {
-      alert("Por favor, selecciona un talle.");
+      setToast({ message: "Por favor, selecciona un talle antes de agregar al carrito.", type: "error" });
       return;
     }
 
@@ -261,36 +263,62 @@ const DetalleProducto = () => {
             </div>
 
             {/* Acciones principales */}
-            <div className="acciones-row">
-              <button 
-                className={`btn-add-cart-large ${added ? 'added' : ''}`}
-                onClick={handleAddToCart}
-                disabled={producto.talles && producto.talles.length > 0 && !selectedTalle}
-              >
-                {added ? (
-                  <>
-                    <FiCheck size={20} /> ¡Añadido!
-                  </>
-                ) : (
-                  <>
-                    <FiShoppingBag size={20} /> Añadir al Carrito
-                  </>
-                )}
-              </button>
+            {user && user.rol === 'VENDEDOR' ? (
+              <div className="acciones-row">
+                <Link 
+                  to="/admin" 
+                  className="btn-add-cart-large" 
+                  style={{ 
+                    textAlign: 'center', 
+                    background: 'linear-gradient(135deg, var(--color-accent) 0%, #1d4ed8 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Ir al Panel de Administración
+                </Link>
+              </div>
+            ) : (
+              <div className="acciones-row">
+                <button 
+                  className={`btn-add-cart-large ${added ? 'added' : ''}`}
+                  onClick={handleAddToCart}
+                  disabled={producto.talles && producto.talles.length > 0 && !selectedTalle}
+                >
+                  {added ? (
+                    <>
+                      <FiCheck size={20} /> ¡Añadido!
+                    </>
+                  ) : (
+                    <>
+                      <FiShoppingBag size={20} /> Añadir al Carrito
+                    </>
+                  )}
+                </button>
 
-              <button 
-                className={`btn-fav-large ${esFavorito ? 'active' : ''}`}
-                onClick={handleToggleFavorito}
-                title={esFavorito ? "Quitar de favoritos" : "Agregar a favoritos"}
-              >
-                <FiHeart size={20} fill={esFavorito ? "var(--color-accent)" : "none"} />
-              </button>
-            </div>
+                <button 
+                  className={`btn-fav-large ${esFavorito ? 'active' : ''}`}
+                  onClick={handleToggleFavorito}
+                  title={esFavorito ? "Quitar de favoritos" : "Agregar a favoritos"}
+                >
+                  <FiHeart size={20} fill={esFavorito ? "var(--color-accent)" : "none"} />
+                </button>
+              </div>
+            )}
             
           </div>
         </div>
 
       </div>
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
     </div>
   );
 };

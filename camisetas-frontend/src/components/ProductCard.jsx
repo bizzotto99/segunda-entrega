@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { FiCheck, FiShoppingBag } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import { FiCheck, FiShoppingBag, FiEye } from 'react-icons/fi';
 import { getImageUrl } from '../services/api';
 import './ProductCard.css';
 
 const ProductCard = ({ producto }) => {
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [added, setAdded] = useState(false);
 
   const handleAdd = (e) => {
@@ -47,21 +49,30 @@ const ProductCard = ({ producto }) => {
         <div className="product-info">
           <h3 className="product-title">{producto.nombre}</h3>
           <p className="product-price">${(producto.precioConDescuento || producto.precio).toLocaleString('es-AR')},00 ARS</p>
-          <button 
-            className={`btn-add-cart ${added ? 'added' : ''}`}
-            onClick={handleAdd}
-            disabled={producto.talles && producto.talles.length > 0 && !producto.talles.some(t => t.stockTalle > 0)}
-          >
-            {added ? (
-              <>
-                <FiCheck style={{ marginRight: '5px' }} /> ¡Añadido!
-              </>
-            ) : (
-              <>
-                <FiShoppingBag style={{ marginRight: '5px' }} /> Añadir
-              </>
-            )}
-          </button>
+          {user && user.rol === 'VENDEDOR' ? (
+            <button 
+              className="btn-add-cart" 
+              style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#cbd5e1' }}
+            >
+              <FiEye style={{ marginRight: '5px' }} /> Ver Camiseta
+            </button>
+          ) : (
+            <button 
+              className={`btn-add-cart ${added ? 'added' : ''}`}
+              onClick={handleAdd}
+              disabled={producto.talles && producto.talles.length > 0 && !producto.talles.some(t => t.stockTalle > 0)}
+            >
+              {added ? (
+                <>
+                  <FiCheck style={{ marginRight: '5px' }} /> ¡Añadido!
+                </>
+              ) : (
+                <>
+                  <FiShoppingBag style={{ marginRight: '5px' }} /> Añadir
+                </>
+              )}
+            </button>
+          )}
         </div>
       </Link>
     </div>

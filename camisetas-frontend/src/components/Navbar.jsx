@@ -31,6 +31,9 @@ const Navbar = () => {
           <Link to="/catalogo?categoriaId=1">Primera Division</Link>
           <Link to="/catalogo?categoriaId=2">Segunda Division</Link>
           <Link to="/catalogo?categoriaId=3">Seleccion</Link>
+          {user && user.rol === 'VENDEDOR' && (
+            <Link to="/admin" className="admin-link" style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>Panel Admin</Link>
+          )}
         </nav>
         
         <div className="navbar-actions">
@@ -53,10 +56,12 @@ const Navbar = () => {
               <FiLogIn size={22} />
             </Link>
           )}
-          <Link to="/carrito" className="action-btn cart-btn">
-            <FiShoppingCart size={22} />
-            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-          </Link>
+          {(!user || user.rol !== 'VENDEDOR') && (
+            <Link to="/carrito" className="action-btn cart-btn">
+              <FiShoppingCart size={22} />
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+            </Link>
+          )}
         </div>
       </div>
     </header>
