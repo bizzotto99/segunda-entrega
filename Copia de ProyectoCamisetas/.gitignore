@@ -1,0 +1,24 @@
+# Compilados
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+/.idea/
+/*.iml
+/.vscode/
+.project
+.classpath
+.settings/
+
+# Sistema
+.DS_Store
+Thumbs.db
+.mvn
+
+# Logs
+*.log
+
+# Archivos de entorno y propiedades locales
+.env
+src/main/resources/application-local.yml
+src/main/resources/application-dev.yml
