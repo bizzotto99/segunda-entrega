@@ -1,6 +1,7 @@
 // api.js centraliza todas las llamadas a la API
 const API_URL = 'http://localhost:8080/api';
 
+// cabeceras de autorizacion  - verifica el token 
 const getHeaders = (token, isFormData = false) => {
   const headers = {};
   if (!isFormData) {
@@ -11,7 +12,7 @@ const getHeaders = (token, isFormData = false) => {
   }
   return headers;
 };
-
+//funcion fetch 
 export const fetchApi = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
   const headers = getHeaders(token, options.body instanceof FormData);

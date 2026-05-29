@@ -48,7 +48,16 @@ const ProductCard = ({ producto }) => {
         </div>
         <div className="product-info">
           <h3 className="product-title">{producto.nombre}</h3>
-          <p className="product-price">${(producto.precioConDescuento || producto.precio).toLocaleString('es-AR')},00 ARS</p>
+          <div className="product-price-row">
+            {producto.descuentoActual && producto.descuentoActual > 0 ? (
+              <>
+                <span className="product-price-original">${producto.precio.toLocaleString('es-AR')},00 ARS</span>
+                <span className="product-price-descuento">${producto.precioConDescuento.toLocaleString('es-AR')},00 ARS</span>
+              </>
+            ) : (
+              <span className="product-price">${producto.precio.toLocaleString('es-AR')},00 ARS</span>
+            )}
+          </div>
           {user && user.rol === 'VENDEDOR' ? (
             <button 
               className="btn-add-cart" 

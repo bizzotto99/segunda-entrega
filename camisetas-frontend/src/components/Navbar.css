@@ -1,5 +1,7 @@
 .navbar {
-  background-color: var(--color-white);
+  background-color: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-gray-200);
   padding: 22px 0; /* Agrandado para coincidir con el calc(100vh - 73px) del Hero */
   position: sticky;
@@ -13,10 +15,30 @@
   justify-content: space-between;
 }
 
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
 .navbar-logo a {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.navbar-logo a:hover {
+  transform: scale(1.02);
+}
+
+.navbar-logo .logo-accent {
+  color: var(--color-accent);
+  text-shadow: 0 0 15px rgba(0, 210, 255, 0.45);
+  font-weight: 900;
 }
 
 .navbar-links {
@@ -45,6 +67,7 @@
   display: flex;
   align-items: center;
   background-color: var(--color-gray-100);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 8px 16px;
   width: 250px;
@@ -61,6 +84,7 @@
   outline: none;
   font-size: 14px;
   width: 100%;
+  color: var(--color-primary);
 }
 
 .action-btn {
@@ -84,7 +108,7 @@
   top: -8px;
   right: -10px;
   background-color: var(--color-accent);
-  color: var(--color-white);
+  color: var(--color-secondary);
   font-size: 11px;
   font-weight: 700;
   height: 18px;
@@ -95,3 +119,50 @@
   justify-content: center;
   padding: 0 5px;
 }
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 12px 0;
+  }
+  .navbar-container {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .navbar-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
+    border-top: 1px solid var(--color-gray-200);
+    padding-top: 12px;
+  }
+  .navbar-actions {
+    gap: 15px;
+  }
+  .search-bar {
+    width: 180px;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar-logo a {
+    font-size: 20px;
+  }
+  .navbar-links {
+    gap: 12px;
+  }
+  .navbar-links a {
+    font-size: 13px;
+  }
+  .search-bar {
+    width: 130px;
+    padding: 6px 12px;
+  }
+  .search-bar input {
+    font-size: 12px;
+  }
+  .navbar-actions {
+    gap: 10px;
+  }
+}
+

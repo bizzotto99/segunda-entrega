@@ -5,21 +5,6 @@ import ProductCard from '../components/ProductCard';
 import { fetchApi } from '../services/api';
 import './Catalogo.css';
 
-// Mock data (ya no se usa, reemplazado por backend)
-const mockAllProducts = [
-  { idProducto: 1, nombre: 'Argentina Messi #10 Mundial 2026', precio: 129990, badge: 'Más vendido', idCategoria: 3, talle: 'L', equipo: 'Argentina' },
-  { idProducto: 2, nombre: 'Camiseta Selección Colombia', precio: 89990, badge: null, idCategoria: 3, talle: 'M', equipo: 'Colombia' },
-  { idProducto: 3, nombre: 'Italia Azzurri #10', precio: 99990, badge: 'Nuevo', idCategoria: 3, talle: 'XL', equipo: 'Italia' },
-  { idProducto: 4, nombre: 'Brasil Seleção 2026', precio: 109990, badge: null, idCategoria: 3, talle: 'S', equipo: 'Brasil' },
-  { idProducto: 5, nombre: 'Boca Juniors Home 2026', precio: 79990, badge: '50% OFF', idCategoria: 1, talle: 'M', equipo: 'Boca Juniors' },
-  { idProducto: 6, nombre: 'River Plate Titular', precio: 79990, badge: 'Más vendido', idCategoria: 1, talle: 'L', equipo: 'River Plate' },
-  { idProducto: 7, nombre: 'Racing Club 2026', precio: 74990, badge: null, idCategoria: 1, talle: 'XL', equipo: 'Racing Club' },
-  { idProducto: 8, nombre: 'Independiente Rojo', precio: 74990, badge: null, idCategoria: 1, talle: 'S', equipo: 'Independiente' },
-  { idProducto: 9, nombre: 'Arsenal de Sarandí', precio: 64990, badge: null, idCategoria: 2, talle: 'M', equipo: 'Arsenal' },
-  { idProducto: 10, option: 'Quilmes AC Jersey', precio: 59990, badge: null, idCategoria: 2, talle: 'L', equipo: 'Quilmes' },
-  { idProducto: 11, nombre: 'Nueva Chicago', precio: 59990, badge: 'Nuevo', idCategoria: 2, talle: 'XL', equipo: 'Nueva Chicago' },
-  { idProducto: 12, nombre: 'Deportivo Morón', precio: 54990, badge: null, idCategoria: 2, talle: 'M', equipo: 'Deportivo Morón' },
-];
 
 const categoryTitles = {
   1: { title: 'Primera División', subtitle: 'Camisetas oficiales de los equipos de la Liga Argentina' },
@@ -178,9 +163,12 @@ const Catalogo = () => {
           
           <div className="catalogo-grid">
             {loading ? (
-              <p style={{ textAlign: 'center', gridColumn: '1 / -1' }}>Cargando productos desde el servidor...</p>
+              <div className="spinner-container" style={{ gridColumn: '1 / -1' }}>
+                <div className="loader-spinner"></div>
+                <p style={{ color: 'var(--color-gray-500)', fontSize: '14px', fontWeight: '500' }}>Cargando productos desde el servidor...</p>
+              </div>
             ) : error ? (
-              <p style={{ color: 'red', textAlign: 'center', gridColumn: '1 / -1' }}>Error: {error}</p>
+              <p style={{ color: 'var(--color-danger)', textAlign: 'center', gridColumn: '1 / -1', fontWeight: '600' }}>Error: {error}</p>
             ) : filteredProducts.length > 0 ? (
               filteredProducts.map(prod => (
                 <ProductCard key={prod.idProducto} producto={prod} />

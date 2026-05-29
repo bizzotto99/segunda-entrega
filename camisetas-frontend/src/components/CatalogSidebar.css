@@ -57,8 +57,8 @@
 }
 
 .radio-label.active {
-  background-color: rgba(229, 57, 53, 0.08); /* light accent red */
-  border: 1px solid rgba(229, 57, 53, 0.3);
+  background-color: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.3);
   color: var(--color-accent);
 }
 
@@ -67,7 +67,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid #ccc;
+  border: 2px solid var(--color-gray-300);
   border-radius: 50%;
   outline: none;
   position: relative;
@@ -136,9 +136,10 @@
 }
 
 .size-btn.active {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary);
+  background-color: var(--color-accent);
+  color: var(--color-secondary);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent-glow);
 }
 
 .equipo-select {

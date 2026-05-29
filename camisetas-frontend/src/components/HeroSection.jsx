@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiPercent, FiMapPin, FiCreditCard } from 'react-icons/fi';
 import './HeroSection.css';
 import slide2 from '../assets/slider2.jpg';
 import slide3 from '../assets/slider3.jpg';
@@ -64,21 +65,37 @@ const HeroSection = () => {
           ))}
         </div>
       </div>
-      
       <div className="hero-benefits">
         <div className="container benefits-container">
-          <div className="benefit-item">
-            <h3 className="benefit-title">10% OFF</h3>
-            <p className="benefit-desc">CON TRANSFERENCIA BANCARIA</p>
+          <div className="benefit-card">
+            <div className="benefit-icon-wrapper">
+              <FiPercent className="benefit-icon" />
+            </div>
+            <div className="benefit-info">
+              <h3 className="benefit-title">10% OFF</h3>
+              <p className="benefit-desc">CON TRANSFERENCIA BANCARIA</p>
+            </div>
           </div>
-          <div className="benefit-item">
-            <h3 className="benefit-title">RETIRO GRATIS</h3>
-            <p className="benefit-desc">EN TIENDAS</p>
+          
+          <div className="benefit-card">
+            <div className="benefit-icon-wrapper">
+              <FiMapPin className="benefit-icon" />
+            </div>
+            <div className="benefit-info">
+              <h3 className="benefit-title">RETIRO GRATIS</h3>
+              <p className="benefit-desc">EN TIENDAS</p>
+            </div>
           </div>
-          <div className="benefit-item">
-            <div className="benefit-badge">6 cuotas</div>
-            <h3 className="benefit-title">6 CUOTAS SIN INTERÉS</h3>
-            <p className="benefit-desc">*A PARTIR DE $149.900. VER CONDICIONES</p>
+          
+          <div className="benefit-card">
+            <div className="benefit-icon-wrapper">
+              <FiCreditCard className="benefit-icon" />
+            </div>
+            <div className="benefit-info">
+              <span className="benefit-badge">6 cuotas</span>
+              <h3 className="benefit-title">6 CUOTAS SIN INTERÉS</h3>
+              <p className="benefit-desc">*A PARTIR DE $149.900. VER CONDICIONES</p>
+            </div>
           </div>
         </div>
       </div>

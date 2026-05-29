@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { fetchApi, getImageUrl } from '../services/api';
 import { 
   FiTrendingUp, FiShoppingBag, FiUsers, FiLayers, FiPlus, 
-  FiTrash2, FiEdit2, FiCheck, FiX, FiUploadCloud, FiInbox, FiRefreshCw 
+  FiTrash2, FiEdit2, FiCheck, FiX, FiUploadCloud, FiInbox, FiRefreshCw, FiPercent
 } from 'react-icons/fi';
 import './AdminDashboard.css';
 import Toast from '../components/Toast';
@@ -39,6 +39,17 @@ const AdminDashboard = () => {
   // Form Modal States
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  
+  // Discount Modal States
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountProduct, setDiscountProduct] = useState(null);
+  const [productDiscounts, setProductDiscounts] = useState([]);
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountForm, setDiscountForm] = useState({
+    porcentaje: 10,
+    fechaInicio: '',
+    fechaFin: ''
+  });
   
   // Product Form Fields
   const [formData, setFormData] = useState({
@@ -262,6 +273,96 @@ const AdminDashboard = () => {
     }
   };
 
+  // Manage Discounts - Open Modal & Load Existing
+  const handleManageDiscount = async (prod) => {
+    setDiscountProduct(prod);
+    setProductDiscounts([]);
+    setDiscountLoading(true);
+    setShowDiscountModal(true);
+    
+    const now = new Date();
+    const oneMonthLater = new Date();
+    oneMonthLater.setMonth(now.getMonth() + 1);
+    
+    const formatDate = (date) => {
+      const pad = (num) => String(num).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+    
+    setDiscountForm({
+      porcentaje: prod.descuentoActual || 10,
+      fechaInicio: formatDate(now),
+      fechaFin: formatDate(oneMonthLater)
+    });
+    
+    try {
+      const data = await fetchApi(`/catalogo/productos/${prod.idProducto}/descuentos`);
+      setProductDiscounts(data || []);
+    } catch (err) {
+      console.error("Error al cargar descuentos:", err);
+      showToast("Error al cargar los descuentos del producto.", "error");
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
+  // Apply a new discount
+  const handleApplyDiscount = async (e) => {
+    e.preventDefault();
+    try {
+      setActionLoading(true);
+      
+      const ensureSeconds = (dateStr) => {
+        if (!dateStr) return dateStr;
+        if (dateStr.length === 16) {
+          return `${dateStr}:00`;
+        }
+        return dateStr;
+      };
+
+      const payload = {
+        porcentaje: parseFloat(discountForm.porcentaje),
+        fechaInicio: ensureSeconds(discountForm.fechaInicio),
+        fechaFin: ensureSeconds(discountForm.fechaFin)
+      };
+      
+      await fetchApi(`/catalogo/productos/${discountProduct.idProducto}/descuentos`, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      
+      showToast("Descuento aplicado con éxito.", "success");
+      setShowDiscountModal(false);
+      loadDashboardData();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Error al aplicar el descuento.", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Delete a discount
+  const handleDeleteDiscount = async (idDescuento) => {
+    try {
+      setActionLoading(true);
+      await fetchApi(`/catalogo/descuentos/${idDescuento}`, {
+        method: 'DELETE'
+      });
+      
+      showToast("Descuento eliminado con éxito.", "success");
+      // Refresh active discounts list
+      const data = await fetchApi(`/catalogo/productos/${discountProduct.idProducto}/descuentos`);
+      setProductDiscounts(data || []);
+      loadDashboardData();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Error al eliminar el descuento.", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Update order status
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -281,9 +382,9 @@ const AdminDashboard = () => {
   // Render Loader
   if (loading) {
     return (
-      <div className="admin-loading-container">
-        <FiRefreshCw className="spinner" />
-        <p>Cargando panel de administración...</p>
+      <div className="spinner-container" style={{ minHeight: '70vh' }}>
+        <div className="loader-spinner"></div>
+        <p style={{ color: 'var(--color-gray-500)', fontSize: '14px', fontWeight: '500' }}>Cargando panel de administración...</p>
       </div>
     );
   }
@@ -415,7 +516,8 @@ const AdminDashboard = () => {
                   <th>Imagen</th>
                   <th>Nombre</th>
                   <th>Club / Categoria</th>
-                  <th>Precio</th>
+                  <th>Precio Base</th>
+                  <th>Descuento</th>
                   <th>Stock Total</th>
                   <th>Acciones</th>
                 </tr>
@@ -447,11 +549,25 @@ const AdminDashboard = () => {
                       </div>
                     </td>
                     <td className="price-cell">${prod.precio?.toLocaleString('es-AR')},00</td>
+                    <td>
+                      {prod.descuentoActual && prod.descuentoActual > 0 ? (
+                        <span className="discount-badge">{prod.descuentoActual}% OFF</span>
+                      ) : (
+                        <span className="no-discount-badge">Sin Descuento</span>
+                      )}
+                    </td>
                     <td className={`stock-cell ${prod.stock === 0 ? 'out' : ''}`}>
                       {prod.stock} u.
                     </td>
                     <td>
                       <div className="action-buttons">
+                        <button 
+                          className="action-btn discount" 
+                          onClick={() => handleManageDiscount(prod)}
+                          title="Gestionar descuento"
+                        >
+                          <FiPercent />
+                        </button>
                         <button 
                           className="action-btn edit" 
                           onClick={() => handleEditProduct(prod)}
@@ -750,6 +866,130 @@ const AdminDashboard = () => {
               >
                 {actionLoading ? 'Eliminando...' : 'Sí, eliminar'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* PRODUCT DISCOUNT MODAL */}
+      {showDiscountModal && discountProduct && (
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '550px' }}>
+            <div className="modal-header">
+              <h2>Gestionar Descuento</h2>
+              <button className="close-btn" onClick={() => setShowDiscountModal(false)}>
+                <FiX size={20} />
+              </button>
+            </div>
+            
+            <div className="discount-modal-body" style={{ padding: '24px', overflowY: 'auto' }}>
+              <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '4px', color: '#ffffff' }}>{discountProduct.nombre}</h3>
+                <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
+                  Precio base: <strong>${discountProduct.precio?.toLocaleString('es-AR')},00</strong>
+                </p>
+              </div>
+
+              {/* LIST OF CURRENT ACTIVE DISCOUNTS */}
+              <div className="active-discounts-section" style={{ marginBottom: '24px' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                  <FiPercent style={{ color: 'var(--color-accent)' }} /> Descuentos Activos
+                </h4>
+                
+                {discountLoading ? (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)' }}>Cargando descuentos...</p>
+                ) : productDiscounts.length === 0 ? (
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '10px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.08)' }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)' }}>No hay descuentos activos para este producto.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {productDiscounts.map((d) => (
+                      <div key={d.idDescuento} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(0, 210, 255, 0.04)', border: '1px solid rgba(0, 210, 255, 0.15)', borderRadius: '10px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ background: 'var(--color-accent)', color: 'var(--color-secondary)', fontWeight: 'bold', fontSize: '0.85rem', padding: '2px 8px', borderRadius: '20px' }}>
+                              {d.porcentaje}% OFF
+                            </span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>ID: {d.idDescuento}</span>
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: '6px' }}>
+                            Validez: {new Date(d.fechaInicio).toLocaleDateString('es-AR')} - {new Date(d.fechaFin).toLocaleDateString('es-AR')}
+                          </div>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => handleDeleteDiscount(d.idDescuento)}
+                          style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                          title="Eliminar descuento"
+                          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                          onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* FORM TO APPLY NEW DISCOUNT */}
+              <form onSubmit={handleApplyDiscount} className="discount-form" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', padding: '20px', borderRadius: '12px' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '16px', color: '#ffffff' }}>Aplicar Nuevo Descuento</h4>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.85rem', color: 'var(--color-gray-800)', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Porcentaje de Descuento (%) *</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <input 
+                        type="range" 
+                        min="1" 
+                        max="100" 
+                        value={discountForm.porcentaje}
+                        onChange={(e) => setDiscountForm({ ...discountForm, porcentaje: parseInt(e.target.value) })}
+                        style={{ flex: '1', accentColor: 'var(--color-accent)' }}
+                      />
+                      <span style={{ fontSize: '1.1rem', fontWeight: 'bold', width: '50px', textAlign: 'right', color: 'var(--color-accent)' }}>
+                        {discountForm.porcentaje}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Fecha de Inicio *</label>
+                      <input 
+                        type="datetime-local" 
+                        value={discountForm.fechaInicio}
+                        onChange={(e) => setDiscountForm({ ...discountForm, fechaInicio: e.target.value })}
+                        required
+                        style={{ width: '100%', padding: '10px', background: 'var(--color-gray-100)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Fecha de Fin *</label>
+                      <input 
+                        type="datetime-local" 
+                        value={discountForm.fechaFin}
+                        onChange={(e) => setDiscountForm({ ...discountForm, fechaFin: e.target.value })}
+                        required
+                        style={{ width: '100%', padding: '10px', background: 'var(--color-gray-100)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                    <button 
+                      type="submit" 
+                      className="btn-save" 
+                      disabled={actionLoading}
+                      style={{ padding: '10px 20px', fontSize: '0.9rem' }}
+                    >
+                      {actionLoading ? 'Aplicando...' : 'Aplicar Descuento'}
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>

@@ -14,7 +14,10 @@ const ProductSection = ({ title, link, products, loading }) => (
     
     <div className="product-grid">
       {loading ? (
-        <p style={{ textAlign: 'center', gridColumn: '1 / -1', color: '#94a3b8' }}>Cargando productos...</p>
+        <div className="spinner-container" style={{ gridColumn: '1 / -1' }}>
+          <div className="loader-spinner"></div>
+          <p style={{ color: 'var(--color-gray-500)', fontSize: '14px', fontWeight: '500' }}>Cargando productos...</p>
+        </div>
       ) : products && products.length > 0 ? (
         products.map(prod => (
           <ProductCard key={prod.idProducto} producto={prod} />

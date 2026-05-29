@@ -1,15 +1,16 @@
+//react context
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
-
+//el estado inicial: definicion de estados del token, estados del usuario logueado y estados auxiliar
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar el perfil de usuario de manera automática si hay un token persistido
+  // Cargar el perfil de usuario de manera automática si hay un token persistido - token en el navegador
   useEffect(() => {
     const loadProfile = async () => {
       if (token && !user) {

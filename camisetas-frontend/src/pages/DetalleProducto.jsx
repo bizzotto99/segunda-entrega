@@ -112,8 +112,8 @@ const DetalleProducto = () => {
   if (loading) {
     return (
       <div className="detalle-page-loading">
-        <div className="spinner"></div>
-        <p>Cargando detalles de la camiseta...</p>
+        <div className="loader-spinner"></div>
+        <p style={{ color: 'var(--color-gray-500)', fontSize: '14px', fontWeight: '500' }}>Cargando detalles de la camiseta...</p>
       </div>
     );
   }

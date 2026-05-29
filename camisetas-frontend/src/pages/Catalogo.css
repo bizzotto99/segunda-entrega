@@ -3,13 +3,14 @@
 }
 
 .catalogo-banner {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #1e295e 100%);
-  color: var(--color-white);
+  background: linear-gradient(135deg, var(--color-white) 0%, #111827 100%);
+  border-bottom: 1px solid var(--color-gray-200);
+  color: var(--color-primary);
   padding: 80px 0;
   margin-bottom: 50px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(18, 22, 41, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* Subtle overlay pattern */

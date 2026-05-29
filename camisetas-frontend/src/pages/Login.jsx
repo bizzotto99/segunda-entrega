@@ -33,7 +33,7 @@ const Login = () => {
       <div className="auth-side-image">
         <div className="auth-side-overlay"></div>
         <div className="auth-side-content">
-          <h1 className="auth-side-logo">UADESHOP</h1>
+          <h1 className="auth-side-logo">UADE<span className="logo-accent">SHOP</span></h1>
           <p className="auth-side-slogan">Lleva los colores de tu pasión</p>
           <p className="auth-side-desc">
             Accede a tu cuenta para explorar las últimas camisetas oficiales de la Primera División, el Ascenso y Selecciones internacionales.
@@ -48,7 +48,7 @@ const Login = () => {
       {/* Right side: Form container */}
       <div className="auth-side-form">
         <div className="auth-container">
-          <div className="auth-logo-mobile">UADESHOP</div>
+          <div className="auth-logo-mobile">UADE<span className="logo-accent">SHOP</span></div>
           <h2 className="auth-title">Bienvenido de nuevo</h2>
           <p className="auth-subtitle">Ingresa a tu cuenta para continuar comprando</p>
           

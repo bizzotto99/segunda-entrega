@@ -24,7 +24,7 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar-container container">
         <div className="navbar-logo">
-          <Link to="/">UADESHOP</Link>
+          <Link to="/">UADE<span className="logo-accent">SHOP</span></Link>
         </div>
         
         <nav className="navbar-links">
@@ -38,7 +38,16 @@ const Navbar = () => {
         
         <div className="navbar-actions">
           <div className="search-bar">
-            <FiSearch className="search-icon" />
+            <FiSearch 
+              className="search-icon" 
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (searchQuery.trim()) {
+                  navigate(`/catalogo?equipo=${encodeURIComponent(searchQuery.trim())}`);
+                  setSearchQuery('');
+                }
+              }}
+            />
             <input 
               type="text" 
               placeholder="Buscar productos..." 

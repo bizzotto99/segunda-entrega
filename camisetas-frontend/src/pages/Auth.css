@@ -3,7 +3,7 @@
   min-height: calc(100vh - 80px); /* Adjust based on navbar height */
   display: flex;
   background-color: #0b0c10;
-  color: var(--color-white);
+  color: var(--color-primary);
   font-family: var(--font-family);
 }
 
@@ -69,10 +69,13 @@
   font-size: 3.5rem;
   font-weight: 900;
   letter-spacing: -2px;
-  background: linear-gradient(135deg, #ffffff 0%, var(--color-accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
   margin-bottom: 10px;
+}
+
+.auth-side-logo .logo-accent {
+  color: var(--color-accent);
+  text-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
 }
 
 .auth-side-slogan {
@@ -95,7 +98,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: #121629;
+  background: var(--color-white);
   border-left: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -117,11 +120,14 @@
   font-size: 2.2rem;
   font-weight: 900;
   letter-spacing: -1px;
-  background: linear-gradient(135deg, #ffffff 0%, var(--color-accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
   margin-bottom: 25px;
   text-align: center;
+}
+
+.auth-logo-mobile .logo-accent {
+  color: var(--color-accent);
+  text-shadow: 0 0 15px rgba(0, 210, 255, 0.35);
 }
 
 .auth-title {
@@ -168,8 +174,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #e53935;
-  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.15);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-glow);
 }
 
 .form-group input::placeholder {
@@ -189,7 +195,7 @@
   margin-top: 10px;
   padding: 14px;
   background: var(--color-accent);
-  color: white;
+  color: var(--color-secondary);
   border-radius: 8px;
   font-weight: 700;
   font-size: 1rem;
@@ -201,9 +207,9 @@
 }
 
 .auth-button:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--color-accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
 }
 
 .auth-button:disabled {
@@ -246,7 +252,7 @@
   height: 20px;
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: white;
+  border-top-color: var(--color-secondary);
   animation: spin 1s ease-in-out infinite;
 }
 

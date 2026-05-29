@@ -29,6 +29,20 @@ public class CartService {
     private final ItemCarritoRepository itemCarritoRepository;
     private final com.ecommerce.camisetas.repository.UsuarioRepository usuarioRepository;
 
+    private Double obtenerPrecioConDescuento(Producto p) {
+        if (p.getDescuentos() != null) {
+            java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+            for (Descuento d : p.getDescuentos()) {
+                if (d.getActivo() != null && d.getActivo() &&
+                        !ahora.isBefore(d.getFechaInicio()) &&
+                        !ahora.isAfter(d.getFechaFin())) {
+                    return p.getPrecio() * (1 - d.getPorcentaje() / 100);
+                }
+            }
+        }
+        return p.getPrecio();
+    }
+
     @Transactional
     public CarritoDto agregarAlCarrito(Long idUsuario, AgregarItemRequestDto request) {
         Carrito carrito = carritoRepository.findByUsuarioIdUsuarioAndEstado(idUsuario, EstadoCarrito.ACTIVO)
@@ -88,15 +102,15 @@ public class CartService {
                 throw new BusinessValidationException("Stock insuficiente para la nueva cantidad de producto.");
             }
             itemExistente.setCantidad(nuevaCantidad);
-            // El precio se mantiene o se actualiza? el precio unitario debería congelarse al agregar, pero vamos a actualizarlo para coincidir.
-            itemExistente.setPrecioUnitario(producto.getPrecio());
+            // El precio se mantiene o se actualiza? el precio unitario debería congelarse al agregar, pero vamos a actualizarlo para coincidir con el descuento actual.
+            itemExistente.setPrecioUnitario(obtenerPrecioConDescuento(producto));
         } else {
             ItemCarrito nuevoItem = ItemCarrito.builder()
                     .carrito(carrito)
                     .producto(producto)
                     .productoTalle(talle)
                     .cantidad(request.getCantidad())
-                    .precioUnitario(producto.getPrecio()) // Congelamos el precio
+                    .precioUnitario(obtenerPrecioConDescuento(producto)) // Aplicamos precio con descuento
                     .build();
             items.add(nuevoItem);
         }
@@ -105,9 +119,19 @@ public class CartService {
         return mapToDto(guardado);
     }
 
+    @Transactional
     public CarritoDto obtenerCarritoActivo(Long idUsuario) {
         Carrito carrito = carritoRepository.findByUsuarioIdUsuarioAndEstado(idUsuario, EstadoCarrito.ACTIVO)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró carrito activo para el usuario."));
+        
+        // Actualizar precios unitarios de los items con el precio vigente/descuento
+        if (carrito.getItems() != null) {
+            for (ItemCarrito item : carrito.getItems()) {
+                item.setPrecioUnitario(obtenerPrecioConDescuento(item.getProducto()));
+            }
+            carrito = carritoRepository.save(carrito);
+        }
+        
         return mapToDto(carrito);
     }
     
@@ -155,6 +179,8 @@ public class CartService {
                 }
             }
             item.setCantidad(nuevaCantidad);
+            // Actualizar precio unitario al modificar la cantidad
+            item.setPrecioUnitario(obtenerPrecioConDescuento(item.getProducto()));
         }
 
         Carrito guardado = carritoRepository.save(carrito);

@@ -44,18 +44,7 @@ const Perfil = () => {
   useEffect(() => {
     if (activeTab === 'favoritos') {
       const storedFavs = JSON.parse(localStorage.getItem('favoritos')) || [];
-      
-      // Si no hay favoritos reales, agregamos unos mocks para que el usuario visualice el diseño
-      if (storedFavs.length === 0) {
-        const mockFavs = [
-          { idProducto: 1, nombre: 'Argentina Messi #10 Mundial 2026', precio: 129990, fotoUrl: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=600', nombreClub: 'Selección Argentina' },
-          { idProducto: 5, nombre: 'Boca Juniors Home 2026', precio: 79990, fotoUrl: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=600', nombreClub: 'Boca Juniors' }
-        ];
-        localStorage.setItem('favoritos', JSON.stringify(mockFavs));
-        setFavorites(mockFavs);
-      } else {
-        setFavorites(storedFavs);
-      }
+      setFavorites(storedFavs);
     }
   }, [activeTab]);
 

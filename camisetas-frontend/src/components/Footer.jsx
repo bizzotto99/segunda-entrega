@@ -8,7 +8,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="container footer-container">
         <div className="footer-col">
-          <h2 className="footer-logo">UADESHOP</h2>
+          <h2 className="footer-logo">UADE<span className="logo-accent">SHOP</span></h2>
           <p className="footer-desc">
             La mejor tienda de camisetas de fútbol. Productos oficiales de las mejores ligas y selecciones del mundo.
           </p>

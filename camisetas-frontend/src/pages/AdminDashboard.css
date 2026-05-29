@@ -8,11 +8,11 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #1e295e 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, var(--color-white) 0%, #111827 100%);
+  border: 1px solid var(--color-gray-200);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 .admin-header h1 {
@@ -110,9 +110,9 @@
 }
 
 .tab-btn.active {
-  color: #ffffff;
+  color: var(--color-secondary);
   background: var(--color-accent);
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 15px var(--color-accent-glow);
 }
 
 /* Stats Tab */
@@ -238,11 +238,19 @@
 .tab-actions h2 {
   font-size: 1.4rem;
   margin: 0;
+  color: var(--color-primary);
+}
+
+.orders-tab-content h2 {
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: var(--color-primary);
 }
 
 .btn-create-product {
   background: var(--color-accent);
-  color: white;
+  color: var(--color-secondary);
   border: none;
   padding: 11px 20px;
   border-radius: 10px;
@@ -252,12 +260,13 @@
   gap: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 15px var(--color-accent-glow);
 }
 
 .btn-create-product:hover {
-  background: #1d4ed8;
+  background: var(--color-accent-hover);
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
 }
 
 .table-responsive {
@@ -383,7 +392,6 @@
   background: rgba(255, 255, 255, 0.05);
   color: #cbd5e1;
 }
-
 .action-btn.edit:hover {
   background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
@@ -394,6 +402,30 @@
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
   border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.action-btn.discount:hover {
+  background: rgba(0, 210, 255, 0.15);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.15);
+}
+
+.discount-badge {
+  background: rgba(0, 210, 255, 0.08);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.no-discount-badge {
+  color: var(--color-gray-500);
+  font-size: 11px;
+  font-weight: 500;
 }
 
 /* Orders Status Details */
@@ -683,18 +715,19 @@
 
 .btn-save {
   background: var(--color-accent);
-  color: white;
+  color: var(--color-secondary);
   border: none;
   padding: 12px 28px;
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 15px var(--color-accent-glow);
 }
 
 .btn-save:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--color-accent-hover);
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
 }
 
 .btn-save:disabled {
