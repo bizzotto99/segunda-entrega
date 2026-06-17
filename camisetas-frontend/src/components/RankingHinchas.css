@@ -207,6 +207,10 @@
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.hincha-row-clickable {
+  cursor: pointer;
+}
+
 /* Logged User row */
 .current-user-highlight {
   background: rgba(0, 210, 255, 0.04) !important;

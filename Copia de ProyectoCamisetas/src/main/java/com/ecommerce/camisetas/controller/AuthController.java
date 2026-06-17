@@ -36,6 +36,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.getPerfil(usuario));
     }
 
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<UsuarioDto> getUsuarioPublico(@PathVariable Long id) {
+        return ResponseEntity.ok(authService.getUsuarioPublico(id));
+    }
+
     @GetMapping("/ranking") // Obtiene el ranking público de los 5 mejores usuarios más la posición del usuario logueado
     public ResponseEntity<com.ecommerce.camisetas.model.dto.RankingResponseDto> getRanking(
             @org.springframework.security.core.annotation.AuthenticationPrincipal com.ecommerce.camisetas.model.entity.Usuario usuario) {

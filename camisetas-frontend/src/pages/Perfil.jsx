@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { fetchApi, getImageUrl } from '../services/api';
-import { FiUser, FiShoppingBag, FiHeart, FiLogOut, FiInbox, FiMapPin, FiCalendar, FiShield } from 'react-icons/fi';
+import { FiUser, FiShoppingBag, FiHeart, FiLogOut, FiInbox, FiMapPin, FiCalendar, FiShield, FiPackage, FiStar, FiAward } from 'react-icons/fi';
 import './Perfil.css';
 
 const Perfil = () => {
@@ -15,6 +15,8 @@ const Perfil = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [inventario, setInventario] = useState([]);
+  const [loadingInventario, setLoadingInventario] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -37,6 +39,23 @@ const Perfil = () => {
         }
       };
       loadOrders();
+    }
+  }, [activeTab, token]);
+
+  useEffect(() => {
+    if (activeTab === 'guardarropas' && token) {
+      const loadInventario = async () => {
+        try {
+          setLoadingInventario(true);
+          const data = await fetchApi('/ordenes/inventario');
+          setInventario(data || []);
+        } catch (error) {
+          console.error("Error al cargar inventario:", error);
+        } finally {
+          setLoadingInventario(false);
+        }
+      };
+      loadInventario();
     }
   }, [activeTab, token]);
 
@@ -107,14 +126,21 @@ const Perfil = () => {
               
               {user.rol !== 'VENDEDOR' && (
                 <>
-                  <button 
+                  <button
                     className={`profile-nav-btn ${activeTab === 'compras' ? 'active' : ''}`}
                     onClick={() => setActiveTab('compras')}
                   >
                     <FiShoppingBag size={18} /> Mis Compras
                   </button>
-                  
-                  <button 
+
+                  <button
+                    className={`profile-nav-btn ${activeTab === 'guardarropas' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('guardarropas')}
+                  >
+                    <FiPackage size={18} /> Mi Guardarropas
+                  </button>
+
+                  <button
                     className={`profile-nav-btn ${activeTab === 'favoritos' ? 'active' : ''}`}
                     onClick={() => setActiveTab('favoritos')}
                   >
@@ -248,6 +274,75 @@ const Perfil = () => {
               </div>
             )}
             
+            {/* Tab: Mi Guardarropas */}
+            {activeTab === 'guardarropas' && (
+              <div>
+                <h3 className="content-title">Mi Guardarropas</h3>
+
+                <div className="wardrobe-stats">
+                  <div className="wardrobe-stat-card">
+                    <FiPackage size={22} className="wardrobe-stat-icon" />
+                    <div>
+                      <div className="wardrobe-stat-value">{inventario.reduce((acc, c) => acc + c.cantidad, 0)}</div>
+                      <div className="wardrobe-stat-label">Camisetas</div>
+                    </div>
+                  </div>
+                  <div className="wardrobe-stat-card">
+                    <FiStar size={22} className="wardrobe-stat-icon" />
+                    <div>
+                      <div className="wardrobe-stat-value">{user.points || 0}</div>
+                      <div className="wardrobe-stat-label">Puntos</div>
+                    </div>
+                  </div>
+                  <div className="wardrobe-stat-card">
+                    <FiAward size={22} className="wardrobe-stat-icon" />
+                    <div>
+                      <div className="wardrobe-stat-value">{inventario.length}</div>
+                      <div className="wardrobe-stat-label">Modelos únicos</div>
+                    </div>
+                  </div>
+                </div>
+
+                {loadingInventario ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                    <div className="spinner"></div>
+                  </div>
+                ) : inventario.length > 0 ? (
+                  <div className="wardrobe-grid">
+                    {inventario.map((camiseta, idx) => (
+                      <div className="wardrobe-card" key={`${camiseta.idProducto}-${camiseta.talle}-${idx}`}>
+                        <div className="wardrobe-card-image-container">
+                          {camiseta.fotoUrl ? (
+                            <img src={getImageUrl(camiseta.fotoUrl)} alt={camiseta.nombre} className="wardrobe-card-image" />
+                          ) : (
+                            <div className="wardrobe-card-image" style={{ background: '#1a1f38' }} />
+                          )}
+                          {camiseta.cantidad > 1 && (
+                            <span className="wardrobe-quantity-badge">x{camiseta.cantidad}</span>
+                          )}
+                        </div>
+                        <div className="wardrobe-card-info">
+                          <span className="wardrobe-card-club">{camiseta.club}</span>
+                          <h4 className="wardrobe-card-name">{camiseta.nombre}</h4>
+                          <div className="wardrobe-card-footer">
+                            <span className="wardrobe-card-talle">Talle {camiseta.talle}</span>
+                            <span className="wardrobe-card-fecha">
+                              {new Date(camiseta.fechaAdquisicion).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-data">
+                    <FiPackage className="no-data-icon" />
+                    <p>Todavía no tenés camisetas en tu guardarropas. ¡Hacé tu primera compra!</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Tab: Favoritos */}
             {activeTab === 'favoritos' && (
               <div>

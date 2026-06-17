@@ -88,6 +88,12 @@ public class AuthService {
         return mapToDto(usuario);
     }
 
+    public UsuarioDto getUsuarioPublico(Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new com.ecommerce.camisetas.exception.ResourceNotFoundException("Usuario no encontrado"));
+        return mapToDto(usuario);
+    }
+
     public RankingResponseDto getRanking(Usuario usuarioLogueado) {
         List<Usuario> top5 = usuarioRepository.findTop5ByRolAndActivoTrueOrderByPointsDescPointsUpdatedAtAsc(RolUsuario.COMPRADOR);
         List<UsuarioDto> top5Dto = top5.stream()

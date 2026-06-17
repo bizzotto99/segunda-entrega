@@ -5,6 +5,7 @@ package com.ecommerce.camisetas.controller;
 import com.ecommerce.camisetas.model.dto.CheckoutRequestDto;
 import com.ecommerce.camisetas.model.dto.OrdenDto;
 import com.ecommerce.camisetas.model.dto.StatsDto;
+import com.ecommerce.camisetas.model.dto.InventarioItemDto;
 import com.ecommerce.camisetas.model.enums.EstadoOrden;
 import com.ecommerce.camisetas.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,17 @@ public class OrderController {
             @PathVariable Long id,
             @RequestParam EstadoOrden estado) {
         return ResponseEntity.ok(orderService.actualizarEstadoOrden(usuario, id, estado));
+    }
+
+    @GetMapping("/inventario")
+    public ResponseEntity<List<InventarioItemDto>> obtenerInventario(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.ecommerce.camisetas.model.entity.Usuario usuario) {
+        return ResponseEntity.ok(orderService.obtenerInventario(usuario.getIdUsuario()));
+    }
+
+    @GetMapping("/inventario/{idUsuario}")
+    public ResponseEntity<List<InventarioItemDto>> obtenerInventarioPublico(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(orderService.obtenerInventario(idUsuario));
     }
 
     @GetMapping("/estadisticas") // Obtiene las estadísticas generales del negocio.

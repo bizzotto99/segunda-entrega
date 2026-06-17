@@ -1,0 +1,241 @@
+.perfil-publico-page {
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #121629 0%, #000000 100%);
+  color: var(--color-primary);
+}
+
+.pp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-gray-500);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.pp-back-btn:hover {
+  background: rgba(255,255,255,0.07);
+  color: var(--color-primary);
+}
+
+/* Header */
+.pp-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 36px;
+  padding: 30px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+}
+
+.pp-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent) 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+
+.pp-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pp-nombre {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.pp-username {
+  color: var(--color-gray-500);
+  font-size: 0.95rem;
+}
+
+/* Stats */
+.pp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.pp-stat-card {
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.15);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pp-stat-icon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.pp-stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+.pp-stat-label {
+  font-size: 0.8rem;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Section title */
+.pp-section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Grid */
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.pp-card {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pp-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 210, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.pp-card-img-container {
+  position: relative;
+  aspect-ratio: 4/5;
+  background: #0b0f19;
+  overflow: hidden;
+}
+
+.pp-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.pp-card:hover .pp-card-img {
+  transform: scale(1.06);
+}
+
+.pp-quantity-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--color-accent);
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.pp-card-info {
+  padding: 14px;
+}
+
+.pp-card-club {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pp-card-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 5px 0 10px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pp-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pp-card-talle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.07);
+  color: var(--color-gray-800);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.pp-card-fecha {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
+/* Empty */
+.pp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  color: var(--color-gray-500);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .pp-stats {
+    grid-template-columns: 1fr;
+  }
+  .pp-grid {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  }
+  .pp-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .pp-nombre {
+    font-size: 1.4rem;
+  }
+}

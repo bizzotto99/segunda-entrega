@@ -4,6 +4,7 @@ import com.ecommerce.camisetas.exception.BusinessValidationException;
 import com.ecommerce.camisetas.exception.ResourceNotFoundException;
 import com.ecommerce.camisetas.model.dto.CheckoutRequestDto;
 import com.ecommerce.camisetas.model.dto.DetalleOrdenDto;
+import com.ecommerce.camisetas.model.dto.InventarioItemDto;
 import com.ecommerce.camisetas.model.dto.OrdenDto;
 import com.ecommerce.camisetas.model.dto.StatsDto;
 import com.ecommerce.camisetas.model.entity.*;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +31,7 @@ public class OrderService {
     private final ProductoRepository productoRepository;
     private final ProductoTalleRepository productoTalleRepository;
     private final UsuarioRepository usuarioRepository;
+    private final DetalleOrdenRepository detalleOrdenRepository;
 
     @Transactional
     public OrdenDto checkout(Long idUsuario, CheckoutRequestDto request) {
@@ -132,6 +136,36 @@ public class OrderService {
                     .orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
         }
         return mapToDto(orden);
+    }
+
+    public List<InventarioItemDto> obtenerInventario(Long idUsuario) {
+        List<com.ecommerce.camisetas.model.entity.DetalleOrden> detalles =
+                detalleOrdenRepository.findByUsuarioId(idUsuario);
+
+        // Agrupa por producto+talle para sumar cantidades. Clave: idProducto-talle
+        Map<String, InventarioItemDto> mapa = new LinkedHashMap<>();
+
+        for (com.ecommerce.camisetas.model.entity.DetalleOrden d : detalles) {
+            String talle = d.getProductoTalle() != null ? d.getProductoTalle().getTalle().name() : "Único";
+            String clave = d.getProducto().getIdProducto() + "-" + talle;
+
+            if (mapa.containsKey(clave)) {
+                InventarioItemDto item = mapa.get(clave);
+                item.setCantidad(item.getCantidad() + d.getCantidad());
+            } else {
+                mapa.put(clave, InventarioItemDto.builder()
+                        .idProducto(d.getProducto().getIdProducto())
+                        .nombre(d.getProducto().getNombre())
+                        .club(d.getProducto().getClub().getNombre())
+                        .fotoUrl(d.getProducto().getFotoUrl())
+                        .talle(talle)
+                        .cantidad(d.getCantidad())
+                        .fechaAdquisicion(d.getOrden().getFecha())
+                        .build());
+            }
+        }
+
+        return new ArrayList<>(mapa.values());
     }
 
     private OrdenDto mapToDto(Orden o) {

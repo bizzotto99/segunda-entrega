@@ -13,6 +13,7 @@ import Carrito from './pages/Carrito';
 import DetalleProducto from './pages/DetalleProducto';
 import ScrollToTop from './components/ScrollToTop';
 import AdminDashboard from './pages/AdminDashboard';
+import PerfilPublico from './pages/PerfilPublico';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/carrito" element={<Carrito />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/usuario/:id" element={<PerfilPublico />} />
               </Routes>
             </main>
             <Footer />

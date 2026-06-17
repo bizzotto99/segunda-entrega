@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchApi, getImageUrl } from '../services/api';
 import './RankingHinchas.css';
 
 const RankingHinchas = () => {
   const { token, user } = useAuth();
+  const navigate = useNavigate();
   const [ranking, setRanking] = useState([]);
   const [usuarioLogueadoRank, setUsuarioLogueadoRank] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -146,9 +148,10 @@ const RankingHinchas = () => {
                       const isCurrentUser = user && user.idUsuario === hincha.idUsuario;
 
                       return (
-                        <div 
-                          key={hincha.idUsuario} 
-                          className={`${rowClass} ${isCurrentUser ? 'current-user-highlight' : ''}`}
+                        <div
+                          key={hincha.idUsuario}
+                          className={`${rowClass} ${isCurrentUser ? 'current-user-highlight' : ''} hincha-row-clickable`}
+                          onClick={() => navigate(`/usuario/${hincha.idUsuario}`)}
                         >
                           {/* Medal or Position Number */}
                           <div className="hincha-position">
