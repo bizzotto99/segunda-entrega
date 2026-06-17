@@ -14,6 +14,7 @@ import DetalleProducto from './pages/DetalleProducto';
 import ScrollToTop from './components/ScrollToTop';
 import AdminDashboard from './pages/AdminDashboard';
 import PerfilPublico from './pages/PerfilPublico';
+import MisteryBox from './pages/MisteryBox';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/usuario/:id" element={<PerfilPublico />} />
+                <Route path="/mistery-box" element={<MisteryBox />} />
               </Routes>
             </main>
             <Footer />

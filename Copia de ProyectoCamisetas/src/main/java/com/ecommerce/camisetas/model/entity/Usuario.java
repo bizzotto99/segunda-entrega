@@ -56,6 +56,10 @@ public class Usuario implements UserDetails {
     @Builder.Default
     private Integer points = 0;
 
+    @Column(name = "ranking_points", nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer rankingPoints = 0;
+
     @Column(name = "points_updated_at")
     private LocalDateTime pointsUpdatedAt;
 
@@ -109,6 +113,9 @@ public class Usuario implements UserDetails {
         }
         if (points == null) {
             points = 0;
+        }
+        if (rankingPoints == null) {
+            rankingPoints = 0;
         }
         if (pointsUpdatedAt == null) {
             pointsUpdatedAt = LocalDateTime.now();

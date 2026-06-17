@@ -95,22 +95,22 @@ public class AuthService {
     }
 
     public RankingResponseDto getRanking(Usuario usuarioLogueado) {
-        List<Usuario> top5 = usuarioRepository.findTop5ByRolAndActivoTrueOrderByPointsDescPointsUpdatedAtAsc(RolUsuario.COMPRADOR);
+        List<Usuario> top5 = usuarioRepository.findTop5ByRolAndActivoTrueOrderByRankingPointsDescPointsUpdatedAtAsc(RolUsuario.COMPRADOR);
         List<UsuarioDto> top5Dto = top5.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
 
         UsuarioRankDto rankDto = null;
         if (usuarioLogueado != null && usuarioLogueado.getRol() == RolUsuario.COMPRADOR) {
-            int points = usuarioLogueado.getPoints() != null ? usuarioLogueado.getPoints() : 0;
+            int rankingPoints = usuarioLogueado.getRankingPoints() != null ? usuarioLogueado.getRankingPoints() : 0;
             LocalDateTime pointsUpdatedAt = usuarioLogueado.getPointsUpdatedAt() != null ? usuarioLogueado.getPointsUpdatedAt() : usuarioLogueado.getFechaRegistro();
             if (pointsUpdatedAt == null) {
                 pointsUpdatedAt = LocalDateTime.now();
             }
-            int rank = usuarioRepository.findRankByPointsAndPointsUpdatedAt(points, pointsUpdatedAt);
+            int rank = usuarioRepository.findRankByRankingPoints(rankingPoints, pointsUpdatedAt);
             rankDto = UsuarioRankDto.builder()
                     .posicion(rank)
-                    .points(points)
+                    .points(rankingPoints)
                     .build();
         }
 
@@ -131,6 +131,7 @@ public class AuthService {
                 .fechaRegistro(u.getFechaRegistro())
                 .activo(u.getActivo())
                 .points(u.getPoints())
+                .rankingPoints(u.getRankingPoints())
                 .pointsUpdatedAt(u.getPointsUpdatedAt())
                 .avatarUrl(u.getAvatarUrl())
                 .build();

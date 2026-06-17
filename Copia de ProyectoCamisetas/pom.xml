@@ -14,7 +14,7 @@
 	<name>Proyecto Camisetas</name>
 	<description>E-commerce para venta de camisetas de futbol</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>22</java.version>
 		<lombok.version>1.18.30</lombok.version>
 	</properties>
 	<dependencies>
@@ -79,10 +79,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>17</source>
-					<target>17</target>
-					<fork>true</fork>
-					<executable>/opt/homebrew/Cellar/openjdk@17/17.0.18/libexec/openjdk.jdk/Contents/Home/bin/javac</executable>
+					<source>22</source>
+					<target>22</target>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>

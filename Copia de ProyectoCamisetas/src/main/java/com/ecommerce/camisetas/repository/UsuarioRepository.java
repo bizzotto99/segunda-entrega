@@ -24,11 +24,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Spring genera automáticamente el SQL: SELECT * FROM usuarios WHERE email = ?
     Optional<Usuario> findByEmail(String email);
 
-    // Obtener los 5 usuarios compradores activos con más puntos, desempatando por fecha (el primero en llegar)
-    List<Usuario> findTop5ByRolAndActivoTrueOrderByPointsDescPointsUpdatedAtAsc(RolUsuario rol);
+    // Obtener los 5 usuarios compradores activos con más ranking_points, desempatando por fecha
+    List<Usuario> findTop5ByRolAndActivoTrueOrderByRankingPointsDescPointsUpdatedAtAsc(RolUsuario rol);
 
-    // Obtener la posición de un usuario en base a sus puntos y la fecha de desempate
+    // Obtener la posición de un usuario en base a sus ranking_points y la fecha de desempate
     @Query("SELECT COUNT(u) + 1 FROM Usuario u WHERE u.rol = 'COMPRADOR' AND u.activo = true AND " +
-           "(u.points > :points OR (u.points = :points AND u.pointsUpdatedAt < :pointsUpdatedAt))")
-    int findRankByPointsAndPointsUpdatedAt(@Param("points") Integer points, @Param("pointsUpdatedAt") LocalDateTime pointsUpdatedAt);
+           "(u.rankingPoints > :rankingPoints OR (u.rankingPoints = :rankingPoints AND u.pointsUpdatedAt < :pointsUpdatedAt))")
+    int findRankByRankingPoints(@Param("rankingPoints") Integer rankingPoints, @Param("pointsUpdatedAt") LocalDateTime pointsUpdatedAt);
 }

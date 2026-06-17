@@ -90,8 +90,8 @@ const PerfilPublico = () => {
           <div className="pp-stat-card">
             <FiStar size={22} className="pp-stat-icon" />
             <div>
-              <div className="pp-stat-value">{usuario.points || 0}</div>
-              <div className="pp-stat-label">Puntos</div>
+              <div className="pp-stat-value">{usuario.rankingPoints ?? usuario.points ?? 0}</div>
+              <div className="pp-stat-label">Puntos de ranking</div>
             </div>
           </div>
           <div className="pp-stat-card">

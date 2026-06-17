@@ -95,6 +95,7 @@
   border-radius: 30px;
   font-size: 16px;
   font-weight: 700;
+  width: fit-content;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   box-shadow: 0 4px 15px var(--color-accent-glow);
 }
@@ -103,6 +104,35 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
   background-color: var(--color-accent-hover);
+}
+
+.hero-cta-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-explore-secondary {
+  display: inline-block;
+  text-align: center;
+  background-color: transparent;
+  color: var(--color-accent);
+  padding: 14px 46px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  width: fit-content;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid var(--color-accent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 4px 15px var(--color-accent-glow);
+}
+
+.btn-explore-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+  background-color: rgba(0, 210, 255, 0.1);
 }
 
 /* --- Slider Dots --- */

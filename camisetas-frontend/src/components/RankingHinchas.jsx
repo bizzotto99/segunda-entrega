@@ -51,7 +51,7 @@ const RankingHinchas = () => {
   };
 
   return (
-    <section className="ranking-section container">
+    <section id="ranking" className="ranking-section container">
       <div className="ranking-layout-grid animate-fade-in">
         
         {/* Left Column: ¿Cómo funciona? */}
@@ -192,7 +192,7 @@ const RankingHinchas = () => {
 
                           {/* Points */}
                           <div className="hincha-points">
-                            <span className="points-number">{formatPoints(hincha.points)}</span>
+                            <span className="points-number">{formatPoints(hincha.rankingPoints ?? hincha.points)}</span>
                             <span className="points-label">pts</span>
                           </div>
                         </div>

@@ -17,6 +17,7 @@ public class UsuarioDto {
     private LocalDateTime fechaRegistro;
     private Boolean activo;
     private Integer points;
+    private Integer rankingPoints;
     private LocalDateTime pointsUpdatedAt;
     private String avatarUrl;
 }

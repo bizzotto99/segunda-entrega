@@ -32,6 +32,7 @@ public class OrderService {
     private final ProductoTalleRepository productoTalleRepository;
     private final UsuarioRepository usuarioRepository;
     private final DetalleOrdenRepository detalleOrdenRepository;
+    private final com.ecommerce.camisetas.repository.MisteryBoxRepository misteryBoxRepository;
 
     @Transactional
     public OrdenDto checkout(Long idUsuario, CheckoutRequestDto request) {
@@ -97,7 +98,9 @@ public class OrderService {
         int pointsEarned = (int) Math.floor(totalOrden / 100.0);
         if (pointsEarned > 0) {
             int currentPoints = usuario.getPoints() != null ? usuario.getPoints() : 0;
+            int currentRankingPoints = usuario.getRankingPoints() != null ? usuario.getRankingPoints() : 0;
             usuario.setPoints(currentPoints + pointsEarned);
+            usuario.setRankingPoints(currentRankingPoints + pointsEarned);
             usuario.setPointsUpdatedAt(java.time.LocalDateTime.now());
             usuarioRepository.save(usuario);
         }
@@ -139,19 +142,14 @@ public class OrderService {
     }
 
     public List<InventarioItemDto> obtenerInventario(Long idUsuario) {
-        List<com.ecommerce.camisetas.model.entity.DetalleOrden> detalles =
-                detalleOrdenRepository.findByUsuarioId(idUsuario);
-
-        // Agrupa por producto+talle para sumar cantidades. Clave: idProducto-talle
         Map<String, InventarioItemDto> mapa = new LinkedHashMap<>();
 
-        for (com.ecommerce.camisetas.model.entity.DetalleOrden d : detalles) {
+        // Items de compras normales
+        for (com.ecommerce.camisetas.model.entity.DetalleOrden d : detalleOrdenRepository.findByUsuarioId(idUsuario)) {
             String talle = d.getProductoTalle() != null ? d.getProductoTalle().getTalle().name() : "Único";
             String clave = d.getProducto().getIdProducto() + "-" + talle;
-
             if (mapa.containsKey(clave)) {
-                InventarioItemDto item = mapa.get(clave);
-                item.setCantidad(item.getCantidad() + d.getCantidad());
+                mapa.get(clave).setCantidad(mapa.get(clave).getCantidad() + d.getCantidad());
             } else {
                 mapa.put(clave, InventarioItemDto.builder()
                         .idProducto(d.getProducto().getIdProducto())
@@ -161,6 +159,25 @@ public class OrderService {
                         .talle(talle)
                         .cantidad(d.getCantidad())
                         .fechaAdquisicion(d.getOrden().getFecha())
+                        .build());
+            }
+        }
+
+        // Items de mystery box
+        for (com.ecommerce.camisetas.model.entity.MisteryBoxApertura a : misteryBoxRepository.findByUsuarioIdUsuarioOrderByFechaDesc(idUsuario)) {
+            String talle = a.getTalle() != null ? a.getTalle() : "Único";
+            String clave = a.getProducto().getIdProducto() + "-" + talle + "-mb";
+            if (mapa.containsKey(clave)) {
+                mapa.get(clave).setCantidad(mapa.get(clave).getCantidad() + 1);
+            } else {
+                mapa.put(clave, InventarioItemDto.builder()
+                        .idProducto(a.getProducto().getIdProducto())
+                        .nombre(a.getProducto().getNombre())
+                        .club(a.getProducto().getClub().getNombre())
+                        .fotoUrl(a.getProducto().getFotoUrl())
+                        .talle(talle)
+                        .cantidad(1)
+                        .fechaAdquisicion(a.getFecha())
                         .build());
             }
         }

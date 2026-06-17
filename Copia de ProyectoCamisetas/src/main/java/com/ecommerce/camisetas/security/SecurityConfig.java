@@ -80,7 +80,7 @@ public class SecurityConfig {
                 "http://localhost:5175", "http://127.0.0.1:5175"
         ));
         // Permitimos los métodos HTTP comunes
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Permitimos los headers necesarios para JWT y JSON
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         // Permitimos que se envíen credenciales (cookies, headers de autorización)

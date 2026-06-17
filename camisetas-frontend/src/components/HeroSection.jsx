@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { FiPercent, FiMapPin, FiCreditCard } from 'react-icons/fi';
 import './HeroSection.css';
 import { Link } from 'react-router-dom';
+
+const scrollToRanking = () => {
+  const el = document.getElementById('ranking');
+  if (!el) return;
+  const offset = 80;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
+};
 import slide2 from '../assets/slider2.jpg';
 import slide3 from '../assets/slider3.jpg';
 
@@ -47,9 +55,12 @@ const HeroSection = () => {
 
       <div className="hero-content container">
         <div className="hero-text-box">
-          <h1 className="hero-title">Conoce todos nuestros productos</h1>
-          <p className="hero-subtitle">Prepárate con las camisetas oficiales</p>
-          <Link to="/catalogo" className="btn-explore">Explorar</Link>
+          <h1 className="hero-title">Vestí a tu equipo, dominá el ranking</h1>
+          <p className="hero-subtitle">Comprá las camisetas oficiales y acumulá puntos para llegar a la cima</p>
+          <div className="hero-cta-group">
+            <Link to="/catalogo" className="btn-explore">Explorar catálogo</Link>
+            <button className="btn-explore-secondary" onClick={scrollToRanking}>Competí por Puntos</button>
+          </div>
         </div>
         
         {/* Puntos indicadores del slider */}
