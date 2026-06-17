@@ -57,9 +57,16 @@ const Navbar = () => {
             />
           </div>
           {token ? (
-            <Link to="/perfil" className="action-btn" title={user ? user.nombre : "Mi Perfil"}>
-              <FiUser size={22} />
-            </Link>
+            <div className="user-nav-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {user && user.rol === 'COMPRADOR' && (
+                <span className="navbar-points" style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-accent)', background: 'rgba(0, 210, 255, 0.08)', padding: '4px 8px', borderRadius: '12px', border: '1px solid rgba(0, 210, 255, 0.2)', display: 'flex', alignItems: 'center', gap: '4px' }} title="Tus Puntos de Hincha">
+                  🏆 {user.points !== undefined ? user.points.toLocaleString('es-AR') : 0} pts
+                </span>
+              )}
+              <Link to="/perfil" className="action-btn" title={user ? `${user.nombre} ${user.apellido}` : "Mi Perfil"}>
+                <FiUser size={22} />
+              </Link>
+            </div>
           ) : (
             <Link to="/login" className="action-btn" title="Iniciar Sesión">
               <FiLogIn size={22} />

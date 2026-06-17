@@ -89,6 +89,15 @@ public class OrderService {
 
         Orden ordenGuardada = ordenRepository.save(orden);
 
+        // Sumar puntos al usuario según el total de la compra (1 punto por cada $100 gastados)
+        int pointsEarned = (int) Math.floor(totalOrden / 100.0);
+        if (pointsEarned > 0) {
+            int currentPoints = usuario.getPoints() != null ? usuario.getPoints() : 0;
+            usuario.setPoints(currentPoints + pointsEarned);
+            usuario.setPointsUpdatedAt(java.time.LocalDateTime.now());
+            usuarioRepository.save(usuario);
+        }
+
         // Cerrar carrito
         carrito.setEstado(EstadoCarrito.CERRADO);
         carritoRepository.save(carrito);

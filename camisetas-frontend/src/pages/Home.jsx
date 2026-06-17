@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import ProductCard from '../components/ProductCard';
+import RankingHinchas from '../components/RankingHinchas';
 import { fetchApi } from '../services/api';
 import './Home.css';
 
@@ -84,6 +85,8 @@ const Home = () => {
         products={productosSegunda} 
         loading={loading}
       />
+
+      <RankingHinchas />
 
       <div className="home-explore-all container">
         <div className="explore-all-card">

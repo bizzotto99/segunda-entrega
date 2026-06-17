@@ -1,10 +1,7 @@
 package com.ecommerce.camisetas.service;
 
 import com.ecommerce.camisetas.exception.BusinessValidationException;
-import com.ecommerce.camisetas.model.dto.LoginRequestDto;
-import com.ecommerce.camisetas.model.dto.LoginResponseDto;
-import com.ecommerce.camisetas.model.dto.RegistroRequestDto;
-import com.ecommerce.camisetas.model.dto.UsuarioDto;
+import com.ecommerce.camisetas.model.dto.*;
 import com.ecommerce.camisetas.model.entity.Carrito;
 import com.ecommerce.camisetas.model.entity.Usuario;
 import com.ecommerce.camisetas.model.enums.EstadoCarrito;
@@ -18,6 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,8 @@ public class AuthService {
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())
                 .rol(RolUsuario.COMPRADOR)
+                .points(0)
+                .pointsUpdatedAt(LocalDateTime.now())
                 .build();
 
         usuarioRepository.save(nuevoUsuario);
@@ -85,6 +88,32 @@ public class AuthService {
         return mapToDto(usuario);
     }
 
+    public RankingResponseDto getRanking(Usuario usuarioLogueado) {
+        List<Usuario> top5 = usuarioRepository.findTop5ByRolAndActivoTrueOrderByPointsDescPointsUpdatedAtAsc(RolUsuario.COMPRADOR);
+        List<UsuarioDto> top5Dto = top5.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        UsuarioRankDto rankDto = null;
+        if (usuarioLogueado != null && usuarioLogueado.getRol() == RolUsuario.COMPRADOR) {
+            int points = usuarioLogueado.getPoints() != null ? usuarioLogueado.getPoints() : 0;
+            LocalDateTime pointsUpdatedAt = usuarioLogueado.getPointsUpdatedAt() != null ? usuarioLogueado.getPointsUpdatedAt() : usuarioLogueado.getFechaRegistro();
+            if (pointsUpdatedAt == null) {
+                pointsUpdatedAt = LocalDateTime.now();
+            }
+            int rank = usuarioRepository.findRankByPointsAndPointsUpdatedAt(points, pointsUpdatedAt);
+            rankDto = UsuarioRankDto.builder()
+                    .posicion(rank)
+                    .points(points)
+                    .build();
+        }
+
+        return RankingResponseDto.builder()
+                .ranking(top5Dto)
+                .usuarioLogueado(rankDto)
+                .build();
+    }
+
     private UsuarioDto mapToDto(Usuario u) {
         return UsuarioDto.builder()
                 .idUsuario(u.getIdUsuario())
@@ -95,6 +124,9 @@ public class AuthService {
                 .rol(u.getRol())
                 .fechaRegistro(u.getFechaRegistro())
                 .activo(u.getActivo())
+                .points(u.getPoints())
+                .pointsUpdatedAt(u.getPointsUpdatedAt())
+                .avatarUrl(u.getAvatarUrl())
                 .build();
     }
 }

@@ -16,4 +16,7 @@ public class UsuarioDto {
     private RolUsuario rol;
     private LocalDateTime fechaRegistro;
     private Boolean activo;
+    private Integer points;
+    private LocalDateTime pointsUpdatedAt;
+    private String avatarUrl;
 }

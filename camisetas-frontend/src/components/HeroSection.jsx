@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiPercent, FiMapPin, FiCreditCard } from 'react-icons/fi';
 import './HeroSection.css';
+import { Link } from 'react-router-dom';
 import slide2 from '../assets/slider2.jpg';
 import slide3 from '../assets/slider3.jpg';
 
@@ -48,7 +49,7 @@ const HeroSection = () => {
         <div className="hero-text-box">
           <h1 className="hero-title">Conoce todos nuestros productos</h1>
           <p className="hero-subtitle">Prepárate con las camisetas oficiales</p>
-          <button className="btn-explore">Explorar</button>
+          <Link to="/catalogo" className="btn-explore">Explorar</Link>
         </div>
         
         {/* Puntos indicadores del slider */}

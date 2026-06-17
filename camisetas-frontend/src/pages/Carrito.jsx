@@ -11,7 +11,7 @@ import './Carrito.css';
 
 const Carrito = () => {
   const navigate = useNavigate();
-  const { token, user } = useAuth();
+  const { token, user, fetchProfile } = useAuth();
   const { items, total, isLoading, fetchCart, updateQuantity, removeFromCart, clearCart } = useCart();
 
   const [direccion, setDireccion] = useState('');
@@ -172,6 +172,11 @@ const Carrito = () => {
       if (response && response.idOrden) {
         setCheckoutSuccess(true);
         clearCart();
+        try {
+          await fetchProfile();
+        } catch (profileErr) {
+          console.error("Error al actualizar perfil de usuario tras compra:", profileErr);
+        }
       } else {
         throw new Error("No se pudo procesar la orden.");
       }

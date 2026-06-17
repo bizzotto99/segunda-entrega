@@ -87,6 +87,8 @@
 }
 
 .btn-explore {
+  display: inline-block;
+  text-align: center;
   background-color: var(--color-accent);
   color: var(--color-secondary);
   padding: 16px 48px;

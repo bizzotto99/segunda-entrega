@@ -52,6 +52,24 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private Boolean activo; // Si es false, el usuario no puede iniciar sesión
 
+    @Column(name = "points", nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer points = 0;
+
+    @Column(name = "points_updated_at")
+    private LocalDateTime pointsUpdatedAt;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    public Integer getPoints() {
+        return points == null ? 0 : points;
+    }
+
+    public LocalDateTime getPointsUpdatedAt() {
+        return pointsUpdatedAt == null ? (fechaRegistro != null ? fechaRegistro : LocalDateTime.now()) : pointsUpdatedAt;
+    }
+
     // Spring Security llama a este método para saber qué permisos tiene el usuario.
     // Convertimos el ROL (ej: VENDEDOR) en una autoridad que Spring entiende ("ROLE_VENDEDOR").
     @Override
@@ -88,6 +106,12 @@ public class Usuario implements UserDetails {
         }
         if (activo == null) {
             activo = true;
+        }
+        if (points == null) {
+            points = 0;
+        }
+        if (pointsUpdatedAt == null) {
+            pointsUpdatedAt = LocalDateTime.now();
         }
     }
 }

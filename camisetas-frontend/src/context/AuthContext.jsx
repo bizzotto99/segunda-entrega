@@ -10,24 +10,32 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchProfile = async () => {
+    if (token) {
+      try {
+        const profile = await authService.getProfile();
+        setUser(profile);
+        return profile;
+      } catch (err) {
+        console.error("Error al cargar perfil de usuario:", err);
+        throw err;
+      }
+    }
+  };
+
   // Cargar el perfil de usuario de manera automática si hay un token persistido - token en el navegador
   useEffect(() => {
-    const loadProfile = async () => {
-      if (token && !user) {
-        setIsLoading(true);
-        try {
-          const profile = await authService.getProfile();
-          setUser(profile);
-        } catch (err) {
+    if (token && !user) {
+      setIsLoading(true);
+      fetchProfile()
+        .catch((err) => {
           console.error("Error al cargar perfil de usuario persistido:", err);
-          // Si el token es inválido o expiró, cerramos la sesión
           logout();
-        } finally {
+        })
+        .finally(() => {
           setIsLoading(false);
-        }
-      }
-    };
-    loadProfile();
+        });
+    }
   }, [token]);
 
   const login = async (credentials) => {
@@ -73,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, isLoading, error, login, register, logout, clearError }}>
+    <AuthContext.Provider value={{ token, user, isLoading, error, login, register, logout, clearError, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   );
