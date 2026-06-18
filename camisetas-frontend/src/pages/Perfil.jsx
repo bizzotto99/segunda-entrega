@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useAuth, useCart } from '../redux/hooks';
 import { fetchApi, getImageUrl } from '../services/api';
 import { FiUser, FiShoppingBag, FiHeart, FiLogOut, FiInbox, FiMapPin, FiCalendar, FiShield, FiPackage, FiStar, FiAward } from 'react-icons/fi';
 import './Perfil.css';
@@ -230,10 +229,13 @@ const Perfil = () => {
                   </div>
                 ) : orders.length > 0 ? (
                   <div className="orders-list">
-                    {orders.map((order) => (
+                     {orders.map((order) => (
                       <div className="order-card" key={order.idOrden}>
                         <div className="order-header">
-                          <span className="order-id">Orden #{order.idOrden}</span>
+                          <span className="order-id">
+                            Orden #{order.idOrden}
+                            {order.esSubasta && <span className="order-badge-subasta">Subasta</span>}
+                          </span>
                           <span className="order-date">
                             <FiCalendar style={{ marginRight: '5px', verticalAlign: 'middle' }} />
                             {formatDate(order.fecha)}
@@ -252,7 +254,7 @@ const Perfil = () => {
                           
                           {order.detalles && order.detalles.map((item) => (
                             <div className="order-item" key={item.idDetalle}>
-                              <span>{item.nombreProducto} (Talle {item.talle || 'M'}) x {item.cantidad}</span>
+                              <span>{item.nombreProducto} {item.talle ? `(Talle ${item.talle})` : ''} x {item.cantidad}</span>
                               <span>{formatCurrency(item.subtotal || (item.precioUnitario * item.cantidad))}</span>
                             </div>
                           ))}

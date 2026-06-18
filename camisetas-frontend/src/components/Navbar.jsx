@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useAuth, useCart } from '../redux/hooks';
+import { fetchApi, getImageUrl } from '../services/api';
 import { FiSearch, FiUser, FiShoppingCart, FiLogIn } from 'react-icons/fi';
 import './Navbar.css';
 
@@ -10,13 +10,54 @@ const Navbar = () => {
   const { token, user } = useAuth();
   const { items } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const containerRef = useRef(null);
 
   const cartCount = items ? items.reduce((sum, item) => sum + item.cantidad, 0) : 0;
+
+  // Search suggestions logic
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      const fetchSuggestions = async () => {
+        try {
+          const data = await fetchApi(`/catalogo/productos?q=${encodeURIComponent(searchQuery.trim())}`);
+          // Limit to 5 suggestions
+          setSuggestions(data ? data.slice(0, 5) : []);
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error("Error al buscar sugerencias:", error);
+          setSuggestions([]);
+        }
+      };
+
+      const delayDebounce = setTimeout(() => {
+        fetchSuggestions();
+      }, 300);
+
+      return () => clearTimeout(delayDebounce);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  // Click outside listener to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/catalogo?equipo=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setShowSuggestions(false);
     }
   };
 
@@ -32,6 +73,7 @@ const Navbar = () => {
           <Link to="/catalogo?categoriaId=2">Segunda Division</Link>
           <Link to="/catalogo?categoriaId=3">Seleccion</Link>
           <Link to="/mistery-box">Mistery Box</Link>
+          <Link to="/subastas">Subastas</Link>
 
           {user && user.rol === 'VENDEDOR' && (
             <Link to="/admin" className="admin-link" style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>Panel Admin</Link>
@@ -39,24 +81,69 @@ const Navbar = () => {
         </nav>
         
         <div className="navbar-actions">
-          <div className="search-bar">
-            <FiSearch 
-              className="search-icon" 
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                if (searchQuery.trim()) {
-                  navigate(`/catalogo?equipo=${encodeURIComponent(searchQuery.trim())}`);
-                  setSearchQuery('');
-                }
-              }}
-            />
-            <input 
-              type="text" 
-              placeholder="Buscar productos..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearch}
-            />
+          <div className="search-bar-container" ref={containerRef}>
+            <div className="search-bar">
+              <FiSearch 
+                className="search-icon" 
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    navigate(`/catalogo?equipo=${encodeURIComponent(searchQuery.trim())}`);
+                    setSearchQuery('');
+                    setShowSuggestions(false);
+                  }
+                }}
+              />
+              <input 
+                type="text" 
+                placeholder="Buscar productos..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                onFocus={() => {
+                  if (searchQuery.trim().length >= 2) {
+                    setShowSuggestions(true);
+                  }
+                }}
+              />
+            </div>
+
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="search-suggestions-dropdown">
+                {suggestions.map((prod) => (
+                  <div 
+                    key={prod.idProducto} 
+                    className="suggestion-item"
+                    onClick={() => {
+                      navigate(`/catalogo/productos/${prod.idProducto}`);
+                      setSearchQuery('');
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <div className="suggestion-img">
+                      {prod.fotoUrl ? (
+                        <img src={getImageUrl(prod.fotoUrl)} alt={prod.nombre} />
+                      ) : (
+                        <div className="suggestion-img-placeholder" />
+                      )}
+                    </div>
+                    <div className="suggestion-info">
+                      <div className="suggestion-name">{prod.nombre}</div>
+                      <div className="suggestion-meta">
+                        <span className="suggestion-club">{prod.nombreClub}</span>
+                        <span className="suggestion-price">${prod.precio.toLocaleString('es-AR')}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showSuggestions && searchQuery.trim().length >= 2 && suggestions.length === 0 && (
+              <div className="search-suggestions-dropdown no-suggestions">
+                No se encontraron productos
+              </div>
+            )}
           </div>
           {token ? (
             <div className="user-nav-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

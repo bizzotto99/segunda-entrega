@@ -46,6 +46,10 @@ public class Orden {
     @Builder.Default
     private List<DetalleOrden> detalles = new ArrayList<>();
 
+    @Column(name = "es_subasta", nullable = false)
+    @Builder.Default
+    private Boolean esSubasta = false;
+
     @PrePersist
     protected void onCreate() {
         if (fecha == null) {

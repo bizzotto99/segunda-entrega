@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../redux/hooks';
 import { fetchApi, getImageUrl } from '../services/api';
-import { FiLock, FiGift, FiStar, FiZap, FiCheck } from 'react-icons/fi';
+import { FiLock, FiGift, FiStar, FiZap, FiCheck, FiShield, FiAward, FiTrendingUp, FiInfo } from 'react-icons/fi';
 import './MisteryBox.css';
 
 const PUNTOS_NECESARIOS = 10000;
@@ -106,12 +106,14 @@ const MisteryBox = () => {
         <div className="mb-wrapper">
 
           <div className="mb-title-section">
-            <h1 className="mb-title">
-              <FiGift className="mb-title-icon" /> Mystery Box
-            </h1>
+            <div className="mb-title-icon-wrapper">
+              <FiGift className="mb-title-icon" />
+            </div>
+            <h1 className="mb-title">Mystery Box</h1>
             <p className="mb-subtitle">
-              Alcanzá los {PUNTOS_NECESARIOS.toLocaleString('es-AR')} puntos de ranking y desbloqueá la caja misteriosa. ¿Qué camiseta te tocará?
+              Alcanzá los {PUNTOS_NECESARIOS.toLocaleString('es-AR')} puntos de ranking y desbloqueá la caja misteriosa.
             </p>
+            <p className="mb-subtitle-highlight">¿Qué camiseta te tocará?</p>
           </div>
 
           {/* Fase: confirmado */}
@@ -192,50 +194,74 @@ const MisteryBox = () => {
           ) : (
             /* Fase: idle */
             <div className="mb-main">
-              <div className={`mb-box-container ${desbloqueada ? 'unlocked' : 'locked'}`}>
-                <div className="mb-box">
-                  {desbloqueada ? (
-                    <FiGift className="mb-box-icon unlocked-icon" />
-                  ) : (
-                    <FiLock className="mb-box-icon locked-icon" />
-                  )}
+              <div className="mb-dashboard-grid">
+                <div className={`mb-box-card ${desbloqueada ? 'unlocked' : 'locked'}`}>
+                  <div className="mb-box-icon-container">
+                    {desbloqueada ? (
+                      <FiGift className="mb-card-lock-icon unlocked" />
+                    ) : (
+                      <FiLock className="mb-card-lock-icon locked" />
+                    )}
+                  </div>
+                  <span className="mb-card-lock-text">{desbloqueada ? 'DESBLOQUEADA' : 'BLOQUEADA'}</span>
                 </div>
-                {!desbloqueada && <div className="mb-lock-label">Bloqueada</div>}
-              </div>
 
-              <div className="mb-info-card">
-                <div className="mb-info-row">
-                  <span className="mb-info-label"><FiZap size={14} /> Puntos disponibles</span>
-                  <span className="mb-info-value accent">{(estado?.puntosActuales || 0).toLocaleString('es-AR')}</span>
+                <div className="mb-stats-card">
+                  <div className="mb-stat-row">
+                    <div className="mb-stat-icon-box cyan">
+                      <FiZap className="mb-stat-icon" />
+                    </div>
+                    <div className="mb-stat-info">
+                      <span className="mb-stat-label">Puntos disponibles</span>
+                      <span className="mb-stat-value cyan">{(estado?.puntosActuales || 0).toLocaleString('es-AR')} pts</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-stat-row">
+                    <div className="mb-stat-icon-box purple">
+                      <FiStar className="mb-stat-icon" />
+                    </div>
+                    <div className="mb-stat-info">
+                      {!desbloqueada ? (
+                        <>
+                          <span className="mb-stat-label">Necesitás</span>
+                          <span className="mb-stat-value">{(PUNTOS_NECESARIOS - (estado?.puntosActuales || 0)).toLocaleString('es-AR')} pts más</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="mb-stat-label">Costo por apertura</span>
+                          <span className="mb-stat-value">{costo.toLocaleString('es-AR')} pts</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                {!desbloqueada && (
-                  <div className="mb-info-row">
-                    <span className="mb-info-label">Necesitás</span>
-                    <span className="mb-info-value warn">
-                      {(PUNTOS_NECESARIOS - (estado?.puntosActuales || 0)).toLocaleString('es-AR')} pts más
-                    </span>
-                  </div>
-                )}
-                {desbloqueada && (
-                  <div className="mb-info-row">
-                    <span className="mb-info-label">Costo por apertura</span>
-                    <span className="mb-info-value">{costo.toLocaleString('es-AR')} pts</span>
-                  </div>
-                )}
               </div>
 
               {!desbloqueada && (
-                <div className="mb-progress-section">
+                <div className="mb-progress-card">
                   <div className="mb-progress-header">
-                    <span>Progreso de desbloqueo</span>
-                    <span>{Math.round(progreso)}%</span>
+                    <span className="mb-progress-title">Progreso de desbloqueo</span>
+                    <span className="mb-progress-percent">{Math.round(progreso)}%</span>
                   </div>
-                  <div className="mb-progress-bar">
-                    <div className="mb-progress-fill" style={{ width: `${progreso}%` }} />
+                  
+                  <div className="mb-progress-bar-container">
+                    <div className="mb-progress-bar">
+                      <div className="mb-progress-fill" style={{ width: `${progreso}%` }} />
+                    </div>
+                    <div className="mb-progress-ticks">
+                      <span className="tick-label active">0 pts</span>
+                      <span className={`tick-label ${estado?.puntosActuales >= 2500 ? 'active' : ''}`}>2.500 pts</span>
+                      <span className={`tick-label ${estado?.puntosActuales >= 5000 ? 'active' : ''}`}>5.000 pts</span>
+                      <span className={`tick-label ${estado?.puntosActuales >= 7500 ? 'active' : ''}`}>7.500 pts</span>
+                      <span className={`tick-label ${estado?.puntosActuales >= 10000 ? 'active' : ''}`}>10.000 pts</span>
+                    </div>
                   </div>
-                  <p className="mb-progress-hint">
-                    Comprá más camisetas para acumular puntos y desbloquear la Mystery Box.
-                  </p>
+                  
+                  <div className="mb-progress-info-banner">
+                    <FiInfo className="mb-info-icon" />
+                    <span>Comprá más camisetas para acumular puntos y desbloquear la Mystery Box.</span>
+                  </div>
                 </div>
               )}
 
@@ -251,6 +277,49 @@ const MisteryBox = () => {
               )}
             </div>
           )}
+
+          {/* Features Row at the Bottom */}
+          <div className="mb-features-row">
+            <div className="mb-feature-item">
+              <div className="mb-feature-icon-wrapper">
+                <FiShield className="mb-feature-icon" />
+              </div>
+              <div className="mb-feature-info">
+                <h4>100% oficiales</h4>
+                <p>Camisetas originales</p>
+              </div>
+            </div>
+
+            <div className="mb-feature-item">
+              <div className="mb-feature-icon-wrapper">
+                <FiAward className="mb-feature-icon" />
+              </div>
+              <div className="mb-feature-info">
+                <h4>Premios únicos</h4>
+                <p>Podés ganar camisetas premium</p>
+              </div>
+            </div>
+
+            <div className="mb-feature-item">
+              <div className="mb-feature-icon-wrapper">
+                <FiTrendingUp className="mb-feature-icon" />
+              </div>
+              <div className="mb-feature-info">
+                <h4>Subí de ranking</h4>
+                <p>Sumá puntos y desbloqueá</p>
+              </div>
+            </div>
+
+            <div className="mb-feature-item">
+              <div className="mb-feature-icon-wrapper">
+                <FiGift className="mb-feature-icon" />
+              </div>
+              <div className="mb-feature-info">
+                <h4>Sorpresas únicas</h4>
+                <p>Cada caja es diferente</p>
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>

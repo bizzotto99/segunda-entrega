@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useAuth, useCart } from '../redux/hooks';
 import { fetchApi, getImageUrl } from '../services/api';
 import { FiChevronLeft, FiShoppingBag, FiCheck, FiHeart } from 'react-icons/fi';
 import './DetalleProducto.css';

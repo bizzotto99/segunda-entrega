@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../redux/hooks';
 import { fetchApi, getImageUrl } from '../services/api';
 import { 
   FiTrendingUp, FiShoppingBag, FiUsers, FiLayers, FiPlus, 
@@ -22,6 +22,17 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
   const [clubs, setClubs] = useState([]);
+  const [subastas, setSubastas] = useState([]);
+  
+  // Subasta Modal States
+  const [showSubastaModal, setShowSubastaModal] = useState(false);
+  const [subastaForm, setSubastaForm] = useState({
+    idProducto: '',
+    precioInicial: '',
+    fechaInicio: '',
+    fechaFin: ''
+  });
+  const [subastaLoading, setSubastaLoading] = useState(false);
   
   // Loading & Error States
   const [loading, setLoading] = useState(true);
@@ -93,12 +104,13 @@ const AdminDashboard = () => {
       setError(null);
       
       // Load categoríes, clubes, stats, and orders concurrently
-      const [catsData, clubsData, statsData, ordersData, prodsData] = await Promise.all([
+      const [catsData, clubsData, statsData, ordersData, prodsData, subastasData] = await Promise.all([
         fetchApi('/catalogo/categorias'),
         fetchApi('/catalogo/clubes'),
         fetchApi('/admin/stats'),
         fetchApi('/ordenes'), // GET /api/ordenes returns all orders for VENDEDOR
-        fetchApi('/catalogo/productos')
+        fetchApi('/catalogo/productos'),
+        fetchApi('/admin/subastas')
       ]);
       
       setCategories(catsData || []);
@@ -106,6 +118,7 @@ const AdminDashboard = () => {
       setStats(statsData);
       setOrders(ordersData || []);
       setProducts(prodsData || []);
+      setSubastas(subastasData || []);
       
     } catch (err) {
       console.error("Error al cargar datos del panel admin:", err);
@@ -249,25 +262,110 @@ const AdminDashboard = () => {
       
       if (editingProduct) {
         // UPDATE
-        await fetchApi(`/catalogo/productos/${editingProduct.idProducto}`, {
+        const updatedProduct = await fetchApi(`/catalogo/productos/${editingProduct.idProducto}`, {
           method: 'PUT',
           body: JSON.stringify(payload)
         });
+        setProducts(prevProducts => 
+          prevProducts.map(p => p.idProducto === editingProduct.idProducto ? updatedProduct : p)
+        );
         showToast('Producto actualizado con éxito.', 'success');
       } else {
         // CREATE
-        await fetchApi('/catalogo/productos', {
+        const newProduct = await fetchApi('/catalogo/productos', {
           method: 'POST',
           body: JSON.stringify(payload)
         });
+        setProducts(prevProducts => [...prevProducts, newProduct]);
+        try {
+          const statsData = await fetchApi('/admin/stats');
+          setStats(statsData);
+        } catch (err) {
+          console.error("Error al actualizar estadísticas:", err);
+        }
         showToast('Producto creado con éxito.', 'success');
       }
       
       setShowProductModal(false);
-      loadDashboardData();
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Error al guardar el producto.', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Open modal to create a subasta
+  const handleNewSubasta = () => {
+    setSubastaForm({
+      idProducto: products[0]?.idProducto || '',
+      precioInicial: '',
+      fechaInicio: '',
+      fechaFin: ''
+    });
+    setShowSubastaModal(true);
+  };
+
+  // Submit subasta
+  const handleSubmitSubasta = async (e) => {
+    e.preventDefault();
+    try {
+      setSubastaLoading(true);
+      const payload = {
+        idProducto: parseInt(subastaForm.idProducto),
+        precioInicial: parseFloat(subastaForm.precioInicial),
+        fechaInicio: subastaForm.fechaInicio,
+        fechaFin: subastaForm.fechaFin
+      };
+
+      const newSub = await fetchApi('/admin/subastas', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      setSubastas(prev => [...prev, newSub]);
+      showToast('Subasta creada con éxito.', 'success');
+      setShowSubastaModal(false);
+      loadDashboardData();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Error al crear la subasta.', 'error');
+    } finally {
+      setSubastaLoading(false);
+    }
+  };
+
+  // Finalize subasta manually
+  const handleFinalizeSubasta = async (id) => {
+    try {
+      setActionLoading(true);
+      const updated = await fetchApi(`/admin/subastas/${id}/finalizar`, {
+        method: 'POST'
+      });
+      setSubastas(prev => prev.map(s => s.idSubasta === id ? updated : s));
+      showToast('Subasta finalizada manualmente.', 'success');
+      loadDashboardData();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Error al finalizar la subasta.', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Delete subasta
+  const handleDeleteSubasta = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta subasta?')) return;
+    try {
+      setActionLoading(true);
+      await fetchApi(`/admin/subastas/${id}`, {
+        method: 'DELETE'
+      });
+      setSubastas(prev => prev.filter(s => s.idSubasta !== id));
+      showToast('Subasta eliminada con éxito.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Error al eliminar la subasta.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -330,10 +428,12 @@ const AdminDashboard = () => {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      
+      const updatedProduct = await fetchApi(`/catalogo/productos/${discountProduct.idProducto}`);
+      setProducts(prevProducts => 
+        prevProducts.map(p => p.idProducto === discountProduct.idProducto ? updatedProduct : p)
+      );
       showToast("Descuento aplicado con éxito.", "success");
       setShowDiscountModal(false);
-      loadDashboardData();
     } catch (err) {
       console.error(err);
       showToast(err.message || "Error al aplicar el descuento.", "error");
@@ -354,7 +454,10 @@ const AdminDashboard = () => {
       // Refresh active discounts list
       const data = await fetchApi(`/catalogo/productos/${discountProduct.idProducto}/descuentos`);
       setProductDiscounts(data || []);
-      loadDashboardData();
+      const updatedProduct = await fetchApi(`/catalogo/productos/${discountProduct.idProducto}`);
+      setProducts(prevProducts => 
+        prevProducts.map(p => p.idProducto === discountProduct.idProducto ? updatedProduct : p)
+      );
     } catch (err) {
       console.error(err);
       showToast(err.message || "Error al eliminar el descuento.", "error");
@@ -370,8 +473,16 @@ const AdminDashboard = () => {
       await fetchApi(`/ordenes/${orderId}/estado?estado=${newStatus}`, {
         method: 'PUT'
       });
+      setOrders(prevOrders => 
+        prevOrders.map(o => o.idOrden === orderId ? { ...o, estado: newStatus } : o)
+      );
+      try {
+        const statsData = await fetchApi('/admin/stats');
+        setStats(statsData);
+      } catch (err) {
+        console.error("Error al actualizar estadísticas:", err);
+      }
       showToast('Estado de la orden actualizado.', 'success');
-      loadDashboardData();
     } catch (err) {
       showToast(err.message || 'Error al actualizar estado de la orden.', 'error');
     } finally {
@@ -426,6 +537,12 @@ const AdminDashboard = () => {
           onClick={() => setActiveTab('pedidos')}
         >
           <FiShoppingBag /> Pedidos
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'subastas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('subastas')}
+        >
+          <FiTrendingUp /> Subastas
         </button>
       </div>
 
@@ -661,6 +778,115 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* TAB CONTENT: SUBASTAS */}
+      {activeTab === 'subastas' && (
+        <div className="products-tab-content">
+          <div className="tab-actions">
+            <h2>Gestión de Subastas ({subastas.length} subastas)</h2>
+            <button className="btn-create-product" onClick={handleNewSubasta}>
+              <FiPlus /> Crear Subasta
+            </button>
+          </div>
+
+          <div className="table-responsive">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th>
+                  <th>Producto</th>
+                  <th>Precio Inicial</th>
+                  <th>Precio Actual</th>
+                  <th>Inicio</th>
+                  <th>Fin</th>
+                  <th>Estado</th>
+                  <th>Ganador</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subastas.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                      No hay subastas registradas en el sistema.
+                    </td>
+                  </tr>
+                ) : (
+                  subastas.map(sub => {
+                    const subEnded = sub.estado === 'FINALIZADA' || new Date(sub.fechaFin).getTime() <= new Date().getTime();
+                    return (
+                      <tr key={sub.idSubasta}>
+                        <td>
+                          <div className="table-img-container">
+                            {sub.producto?.fotoUrl ? (
+                              <img src={getImageUrl(sub.producto.fotoUrl)} alt={sub.producto.nombre} />
+                            ) : (
+                              <div className="table-img-placeholder"></div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="prod-name-cell">
+                            <span className="prod-name">{sub.producto?.nombre}</span>
+                            <span className="prod-season">{sub.producto?.nombreClub}</span>
+                          </div>
+                        </td>
+                        <td className="price-cell">${sub.precioInicial?.toLocaleString('es-AR')}</td>
+                        <td className="price-cell" style={{ color: '#00f0ff', fontWeight: 'bold' }}>
+                          ${sub.precioActual?.toLocaleString('es-AR')}
+                        </td>
+                        <td className="date-cell" style={{ fontSize: '0.8rem' }}>
+                          {new Date(sub.fechaInicio).toLocaleString('es-AR')}
+                        </td>
+                        <td className="date-cell" style={{ fontSize: '0.8rem' }}>
+                          {new Date(sub.fechaFin).toLocaleString('es-AR')}
+                        </td>
+                        <td>
+                          <span className={`status-pill ${subEnded ? 'ended' : 'active'}`} style={{ display: 'inline-block' }}>
+                            {subEnded ? 'Finalizada' : 'Activa'}
+                          </span>
+                        </td>
+                        <td>
+                          {sub.ganadorUsername ? (
+                            <div className="prod-name-cell">
+                              <span className="prod-name" style={{ color: '#eab308' }}>🏆 {sub.ganadorUsername}</span>
+                              <span className="prod-season">{sub.ganadorNombreCompleto}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Ninguno</span>
+                          )}
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            {!subEnded && (
+                              <button 
+                                className="action-btn edit" 
+                                onClick={() => handleFinalizeSubasta(sub.idSubasta)}
+                                title="Finalizar manualmente"
+                                style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              >
+                                <FiCheck size={16} />
+                              </button>
+                            )}
+                            <button 
+                              className="action-btn delete" 
+                              onClick={() => handleDeleteSubasta(sub.idSubasta)}
+                              title="Eliminar subasta"
+                              style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* PRODUCT CREATION/EDITION MODAL */}
       {showProductModal && (
         <div className="modal-overlay">
@@ -853,9 +1079,15 @@ const AdminDashboard = () => {
                     await fetchApi(`/catalogo/productos/${confirmDeleteId}`, {
                       method: 'DELETE'
                     });
+                    setProducts(prevProducts => prevProducts.filter(p => p.idProducto !== confirmDeleteId));
+                    try {
+                      const statsData = await fetchApi('/admin/stats');
+                      setStats(statsData);
+                    } catch (err) {
+                      console.error("Error al actualizar estadísticas:", err);
+                    }
                     showToast('Producto eliminado correctamente.', 'success');
                     setConfirmDeleteId(null);
-                    loadDashboardData();
                   } catch (err) {
                     showToast(err.message || 'Error al eliminar producto.', 'error');
                   } finally {
@@ -991,6 +1223,95 @@ const AdminDashboard = () => {
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE SUBASTA MODAL */}
+      {showSubastaModal && (
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '550px' }}>
+            <div className="modal-header">
+              <h2>Crear Nueva Subasta</h2>
+              <button className="close-btn" onClick={() => setShowSubastaModal(false)}>
+                <FiX size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmitSubasta} style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Producto (Camiseta) *</label>
+                  <select 
+                    value={subastaForm.idProducto}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, idProducto: e.target.value })}
+                    required
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  >
+                    <option value="" disabled>Seleccione una camiseta...</option>
+                    {products.map(p => (
+                      <option key={p.idProducto} value={p.idProducto}>
+                        {p.nombre} ({p.nombreClub}) - Base: ${p.precio}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Precio Inicial ($) *</label>
+                  <input 
+                    type="number" 
+                    value={subastaForm.precioInicial}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, precioInicial: e.target.value })}
+                    required
+                    min="1"
+                    placeholder="Ej: 85000"
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Fecha y Hora de Inicio *</label>
+                  <input 
+                    type="datetime-local" 
+                    value={subastaForm.fechaInicio}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, fechaInicio: e.target.value })}
+                    required
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Fecha y Hora de Fin *</label>
+                  <input 
+                    type="datetime-local" 
+                    value={subastaForm.fechaFin}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, fechaFin: e.target.value })}
+                    required
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+                  <button 
+                    type="button" 
+                    className="action-btn"
+                    onClick={() => setShowSubastaModal(false)}
+                    style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer' }}
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn-save" 
+                    disabled={subastaLoading}
+                    style={{ padding: '10px 20px', fontSize: '0.9rem' }}
+                  >
+                    {subastaLoading ? 'Creando...' : 'Crear Subasta'}
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

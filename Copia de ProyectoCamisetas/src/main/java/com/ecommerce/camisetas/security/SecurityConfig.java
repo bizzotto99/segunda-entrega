@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permitir preflight de CORS
                         .requestMatchers("/api/auth/**").permitAll() // Registro y Login
                         .requestMatchers(HttpMethod.GET, "/api/catalogo/**").permitAll() // Ver el catálogo
+                        .requestMatchers(HttpMethod.GET, "/api/subastas/**").permitAll() // Ver subastas y ofertas
                         .requestMatchers(HttpMethod.GET, "/api/ordenes/inventario/**").permitAll() // Inventario público
                         .requestMatchers("/uploads/**").permitAll() // Ver imágenes subidas
 

@@ -206,6 +206,7 @@ public class OrderService {
                 .total(o.getTotal())
                 .estado(o.getEstado())
                 .direccionEntrega(o.getDireccionEntrega())
+                .esSubasta(o.getEsSubasta())
                 .detalles(detallesDto)
                 .build();
     }
