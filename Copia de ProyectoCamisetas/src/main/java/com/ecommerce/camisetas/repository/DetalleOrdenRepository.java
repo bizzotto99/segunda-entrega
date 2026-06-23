@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface DetalleOrdenRepository extends JpaRepository<DetalleOrden, Long> {
 
-    @Query("SELECT d FROM DetalleOrden d JOIN FETCH d.producto p JOIN FETCH p.club JOIN d.orden o WHERE o.usuario.idUsuario = :idUsuario ORDER BY o.fecha ASC")
+    @Query("SELECT d FROM DetalleOrden d LEFT JOIN FETCH d.producto p LEFT JOIN FETCH p.club LEFT JOIN FETCH d.camisetaSubasta cs JOIN d.orden o WHERE o.usuario.idUsuario = :idUsuario ORDER BY o.fecha ASC")
     List<DetalleOrden> findByUsuarioId(@Param("idUsuario") Long idUsuario);
 }

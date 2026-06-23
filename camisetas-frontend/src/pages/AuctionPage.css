@@ -1111,3 +1111,11 @@
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-4px) rotate(3deg); }
 }
+
+@media (min-width: 1024px) {
+  .auction-container.single-auction {
+    grid-template-columns: 1fr !important;
+    max-width: 850px;
+    margin: 0 auto;
+  }
+}

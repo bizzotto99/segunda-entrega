@@ -275,10 +275,11 @@ const AuctionPage = () => {
 
   return (
     <div className={`auction-page ${showDetailMobile ? 'show-detail-mobile' : ''}`}>
-      <div className={`auction-container container ${!selectedSubasta ? 'no-selection' : ''}`}>
+      <div className={`auction-container container ${subastas.length === 1 ? 'single-auction' : ''} ${!selectedSubasta ? 'no-selection' : ''}`}>
         
         {/* LEFT COLUMN: LIST PANEL */}
-        <div className="auction-list-panel">
+        {subastas.length > 1 && (
+          <div className="auction-list-panel">
           <div className="list-panel-header">
             <h1 className="list-title">Subastas en vivo</h1>
             <p className="list-subtitle">Pujá por camisetas únicas y llevate piezas históricas.</p>
@@ -392,22 +393,25 @@ const AuctionPage = () => {
               })}
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         {/* RIGHT COLUMN: DETAIL PANEL */}
         <div className="auction-detail-panel">
           {selectedSubasta ? (
             <div className="detail-panel-content">
               {/* Back mobile link */}
-              <button 
-                className="mobile-back-link"
-                onClick={() => {
-                  setShowDetailMobile(false);
-                  setSelectedSubasta(null);
-                }}
-              >
-                <FiChevronLeft /> Volver a subastas
-              </button>
+              {subastas.length > 1 && (
+                <button 
+                  className="mobile-back-link"
+                  onClick={() => {
+                    setShowDetailMobile(false);
+                    setSelectedSubasta(null);
+                  }}
+                >
+                  <FiChevronLeft /> Volver a subastas
+                </button>
+              )}
 
               {/* Main Winner Banner */}
               {isFinalizada && (

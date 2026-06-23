@@ -147,15 +147,18 @@ public class OrderService {
         // Items de compras normales
         for (com.ecommerce.camisetas.model.entity.DetalleOrden d : detalleOrdenRepository.findByUsuarioId(idUsuario)) {
             String talle = d.getProductoTalle() != null ? d.getProductoTalle().getTalle().name() : "Único";
-            String clave = d.getProducto().getIdProducto() + "-" + talle;
+            Long prodId = d.getProducto() != null ? d.getProducto().getIdProducto() : null;
+            Long subastaId = d.getCamisetaSubasta() != null ? d.getCamisetaSubasta().getIdCamisetaSubasta() : null;
+            String clave = (prodId != null ? "prod-" + prodId : "subasta-" + subastaId) + "-" + talle;
+
             if (mapa.containsKey(clave)) {
                 mapa.get(clave).setCantidad(mapa.get(clave).getCantidad() + d.getCantidad());
             } else {
                 mapa.put(clave, InventarioItemDto.builder()
-                        .idProducto(d.getProducto().getIdProducto())
-                        .nombre(d.getProducto().getNombre())
-                        .club(d.getProducto().getClub().getNombre())
-                        .fotoUrl(d.getProducto().getFotoUrl())
+                        .idProducto(prodId)
+                        .nombre(d.getProducto() != null ? d.getProducto().getNombre() : (d.getCamisetaSubasta() != null ? d.getCamisetaSubasta().getNombre() : "Camiseta Especial"))
+                        .club(d.getProducto() != null ? d.getProducto().getClub().getNombre() : (d.getCamisetaSubasta() != null ? d.getCamisetaSubasta().getClub() : "Especial"))
+                        .fotoUrl(d.getProducto() != null ? d.getProducto().getFotoUrl() : (d.getCamisetaSubasta() != null ? d.getCamisetaSubasta().getFotoUrl() : null))
                         .talle(talle)
                         .cantidad(d.getCantidad())
                         .fechaAdquisicion(d.getOrden().getFecha())
@@ -189,8 +192,8 @@ public class OrderService {
         List<DetalleOrdenDto> detallesDto = o.getDetalles() != null ?
                 o.getDetalles().stream().map(d -> DetalleOrdenDto.builder()
                         .idDetalle(d.getIdDetalle())
-                        .idProducto(d.getProducto().getIdProducto())
-                        .nombreProducto(d.getProducto().getNombre())
+                        .idProducto(d.getProducto() != null ? d.getProducto().getIdProducto() : null)
+                        .nombreProducto(d.getProducto() != null ? d.getProducto().getNombre() : (d.getCamisetaSubasta() != null ? d.getCamisetaSubasta().getNombre() : "Camiseta Especial"))
                         .idProdTalle(d.getProductoTalle() != null ? d.getProductoTalle().getIdProdTalle() : null)
                         .talle(d.getProductoTalle() != null ? d.getProductoTalle().getTalle() : null)
                         .cantidad(d.getCantidad())

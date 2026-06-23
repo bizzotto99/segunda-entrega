@@ -56,11 +56,16 @@ public class SubastaService {
     // Crear una nueva subasta (Admin)
     @Transactional
     public SubastaDto crearSubasta(SubastaRequestDto request) {
-        Producto producto = productoRepository.findById(request.getIdProducto())
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + request.getIdProducto()));
+        CamisetaSubasta camiseta = CamisetaSubasta.builder()
+                .nombre(request.getNombre())
+                .descripcion(request.getDescripcion())
+                .fotoUrl(request.getFotoUrl())
+                .club(request.getClub())
+                .fotosUrls(request.getFotosUrls())
+                .build();
 
         Subasta subasta = Subasta.builder()
-                .producto(producto)
+                .camisetaSubasta(camiseta)
                 .precioInicial(request.getPrecioInicial())
                 .precioActual(request.getPrecioInicial())
                 .fechaInicio(request.getFechaInicio())
@@ -82,11 +87,15 @@ public class SubastaService {
             throw new IllegalStateException("No se puede editar una subasta ya finalizada.");
         }
 
-        if (request.getIdProducto() != null) {
-            Producto producto = productoRepository.findById(request.getIdProducto())
-                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + request.getIdProducto()));
-            subasta.setProducto(producto);
+        CamisetaSubasta camiseta = subasta.getCamisetaSubasta();
+        if (camiseta != null) {
+            if (request.getNombre() != null) camiseta.setNombre(request.getNombre());
+            if (request.getDescripcion() != null) camiseta.setDescripcion(request.getDescripcion());
+            if (request.getFotoUrl() != null) camiseta.setFotoUrl(request.getFotoUrl());
+            if (request.getClub() != null) camiseta.setClub(request.getClub());
+            if (request.getFotosUrls() != null) camiseta.setFotosUrls(request.getFotosUrls());
         }
+
         if (request.getPrecioInicial() != null) {
             subasta.setPrecioInicial(request.getPrecioInicial());
             // Si no tiene ofertas, reiniciamos también el precio actual
@@ -216,7 +225,7 @@ public class SubastaService {
         // Crear el detalle de la orden
         DetalleOrden detalle = DetalleOrden.builder()
                 .orden(orden)
-                .producto(subasta.getProducto())
+                .camisetaSubasta(subasta.getCamisetaSubasta())
                 .cantidad(1)
                 .precioUnitario(subasta.getPrecioActual())
                 .subtotal(subasta.getPrecioActual())
@@ -267,7 +276,7 @@ public class SubastaService {
 
         return SubastaDto.builder()
                 .idSubasta(s.getIdSubasta())
-                .producto(catalogService.mapToDto(s.getProducto()))
+                .producto(mapCamisetaSubastaToProductoDto(s.getCamisetaSubasta()))
                 .precioInicial(s.getPrecioInicial())
                 .precioActual(s.getPrecioActual())
                 .fechaInicio(s.getFechaInicio())
@@ -278,6 +287,28 @@ public class SubastaService {
                 .ganadorNombreCompleto(g != null ? g.getNombre() + " " + g.getApellido() : null)
                 .cantidadOfertas(cantidad)
                 .envioRegistrado(s.getEnvioRegistrado())
+                .build();
+    }
+
+    private ProductoDto mapCamisetaSubastaToProductoDto(CamisetaSubasta cs) {
+        if (cs == null) return null;
+        return ProductoDto.builder()
+                .idProducto(cs.getIdCamisetaSubasta())
+                .nombre(cs.getNombre())
+                .descripcion(cs.getDescripcion())
+                .fotoUrl(cs.getFotoUrl())
+                .fotosUrls(cs.getFotosUrls())
+                .nombreClub(cs.getClub())
+                .precio(null)
+                .stock(null)
+                .temporada(null)
+                .tipo(null)
+                .idClub(null)
+                .idCategoria(null)
+                .nombreCategoria(null)
+                .talles(null)
+                .descuentoActual(null)
+                .precioConDescuento(null)
                 .build();
     }
 

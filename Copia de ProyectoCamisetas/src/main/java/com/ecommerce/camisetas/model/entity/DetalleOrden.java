@@ -22,8 +22,12 @@ public class DetalleOrden {
     private Orden orden;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_producto", nullable = false)
+    @JoinColumn(name = "id_producto", nullable = true)
     private Producto producto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_camiseta_subasta")
+    private CamisetaSubasta camisetaSubasta;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_prod_talle")

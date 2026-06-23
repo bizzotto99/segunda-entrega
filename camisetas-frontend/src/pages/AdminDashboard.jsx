@@ -27,12 +27,18 @@ const AdminDashboard = () => {
   // Subasta Modal States
   const [showSubastaModal, setShowSubastaModal] = useState(false);
   const [subastaForm, setSubastaForm] = useState({
-    idProducto: '',
+    nombre: '',
+    descripcion: '',
+    fotoUrl: '',
+    club: '',
+    fotosUrls: '',
     precioInicial: '',
     fechaInicio: '',
     fechaFin: ''
   });
   const [subastaLoading, setSubastaLoading] = useState(false);
+  const [subastaMainImageFile, setSubastaMainImageFile] = useState(null);
+  const [subastaBackImageFile, setSubastaBackImageFile] = useState(null);
   
   // Loading & Error States
   const [loading, setLoading] = useState(true);
@@ -298,11 +304,17 @@ const AdminDashboard = () => {
   // Open modal to create a subasta
   const handleNewSubasta = () => {
     setSubastaForm({
-      idProducto: products[0]?.idProducto || '',
+      nombre: '',
+      descripcion: '',
+      fotoUrl: '',
+      club: '',
+      fotosUrls: '',
       precioInicial: '',
       fechaInicio: '',
       fechaFin: ''
     });
+    setSubastaMainImageFile(null);
+    setSubastaBackImageFile(null);
     setShowSubastaModal(true);
   };
 
@@ -311,8 +323,29 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       setSubastaLoading(true);
+
+      let finalFotoUrl = subastaForm.fotoUrl;
+      if (subastaMainImageFile) {
+        finalFotoUrl = await uploadImage(subastaMainImageFile);
+      }
+      if (!finalFotoUrl) {
+        showToast('Debes seleccionar una imagen principal o ingresar una URL.', 'error');
+        setSubastaLoading(false);
+        return;
+      }
+
+      let additionalUrls = subastaForm.fotosUrls ? subastaForm.fotosUrls.split(',').map(url => url.trim()).filter(Boolean) : [];
+      if (subastaBackImageFile) {
+        const backUrl = await uploadImage(subastaBackImageFile);
+        additionalUrls.push(backUrl);
+      }
+
       const payload = {
-        idProducto: parseInt(subastaForm.idProducto),
+        nombre: subastaForm.nombre.trim(),
+        descripcion: subastaForm.descripcion.trim(),
+        fotoUrl: finalFotoUrl.trim(),
+        club: subastaForm.club.trim(),
+        fotosUrls: additionalUrls,
         precioInicial: parseFloat(subastaForm.precioInicial),
         fechaInicio: subastaForm.fechaInicio,
         fechaFin: subastaForm.fechaFin
@@ -1238,23 +1271,88 @@ const AdminDashboard = () => {
               </button>
             </div>
             
-            <form onSubmit={handleSubmitSubasta} style={{ padding: '24px' }}>
+            <form onSubmit={handleSubmitSubasta} style={{ padding: '24px', overflowY: 'auto' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="form-group">
-                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Producto (Camiseta) *</label>
-                  <select 
-                    value={subastaForm.idProducto}
-                    onChange={(e) => setSubastaForm({ ...subastaForm, idProducto: e.target.value })}
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Nombre de la Camiseta *</label>
+                  <input 
+                    type="text" 
+                    value={subastaForm.nombre}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, nombre: e.target.value })}
                     required
+                    placeholder="Ej: Camiseta de Boca 1998 Firmada por Palermo"
                     style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
-                  >
-                    <option value="" disabled>Seleccione una camiseta...</option>
-                    {products.map(p => (
-                      <option key={p.idProducto} value={p.idProducto}>
-                        {p.nombre} ({p.nombreClub}) - Base: ${p.precio}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Descripción / Info *</label>
+                  <textarea 
+                    value={subastaForm.descripcion}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, descripcion: e.target.value })}
+                    required
+                    placeholder="Ej: Usada en la final de la Copa Libertadores..."
+                    rows="3"
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Club / Selección / Origen *</label>
+                  <input 
+                    type="text" 
+                    value={subastaForm.club}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, club: e.target.value })}
+                    required
+                    placeholder="Ej: Boca Juniors"
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Foto Principal *</label>
+                  <div className="file-upload-box" style={{ marginBottom: '8px' }}>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      id="subasta-main-image-file"
+                      onChange={(e) => setSubastaMainImageFile(e.target.files[0])}
+                    />
+                    <label htmlFor="subasta-main-image-file" className="file-upload-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0f172a', border: '1px dashed rgba(255,255,255,0.15)', padding: '12px', borderRadius: '10px', cursor: 'pointer', justifyContent: 'center' }}>
+                      <FiUploadCloud size={20} color="#00f0ff" />
+                      <span>{subastaMainImageFile ? subastaMainImageFile.name : 'Subir foto principal (Recomendado)'}</span>
+                    </label>
+                  </div>
+                  <input 
+                    type="text" 
+                    value={subastaForm.fotoUrl}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, fotoUrl: e.target.value })}
+                    placeholder="O ingresa la URL de la foto principal..."
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500', marginBottom: '6px', display: 'block' }}>Fotos Adicionales</label>
+                  <div className="file-upload-box" style={{ marginBottom: '8px' }}>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      id="subasta-back-image-file"
+                      onChange={(e) => setSubastaBackImageFile(e.target.files[0])}
+                    />
+                    <label htmlFor="subasta-back-image-file" className="file-upload-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0f172a', border: '1px dashed rgba(255,255,255,0.15)', padding: '12px', borderRadius: '10px', cursor: 'pointer', justifyContent: 'center' }}>
+                      <FiUploadCloud size={20} color="#00f0ff" />
+                      <span>{subastaBackImageFile ? subastaBackImageFile.name : 'Subir foto adicional (Opcional)'}</span>
+                    </label>
+                  </div>
+                  <input 
+                    type="text" 
+                    value={subastaForm.fotosUrls}
+                    onChange={(e) => setSubastaForm({ ...subastaForm, fotosUrls: e.target.value })}
+                    placeholder="O ingresa URLs adicionales separadas por coma..."
+                    style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', color: 'white', outline: 'none' }}
+                  />
                 </div>
 
                 <div className="form-group">

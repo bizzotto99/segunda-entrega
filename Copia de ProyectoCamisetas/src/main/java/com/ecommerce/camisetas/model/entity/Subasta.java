@@ -20,10 +20,10 @@ public class Subasta {
     @Column(name = "id_subasta")
     private Long idSubasta;
 
-    // Relación: MUCHAS subastas pueden pertenecer a UN producto (pero normalmente es una subasta activa por producto).
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_producto", nullable = false)
-    private Producto producto;
+    // Relación: una subasta pertenece a una camiseta especial de subasta.
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_camiseta_subasta", nullable = false)
+    private CamisetaSubasta camisetaSubasta;
 
     @Column(name = "precio_inicial", nullable = false)
     private Double precioInicial;

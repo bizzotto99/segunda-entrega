@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubastaRequestDto {
-    private Long idProducto;
+    private String nombre;
+    private String descripcion;
+    private String fotoUrl;
+    private String club;
+    private java.util.List<String> fotosUrls;
     private Double precioInicial;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
